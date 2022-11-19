@@ -79,7 +79,15 @@ class Generator(nn.Module):
 
         return x_final
 
-    
+    # Execute the backward propagation on the Generator. Warning : do not call forward method.
+    # parameters :
+    #   - obtained : the output obtained 
+    #   - expected : the expected output
+    #   - loss : loss function (Critics)
+    #   - optimizer : the optimizer we should use
+    def backward(self, obtained, expected, loss, optimizer):
+        loss = 0
+        return loss
 
         
         

@@ -1,0 +1,14 @@
+{
+	"DataStructure":{
+		"ratio_test_data":0.1
+	},
+	"NN_structure": {
+		"num_convs":2,
+		"num_layers":4,
+		"initial_filter_num":1
+	},
+	"training":{
+		"epoch":1000
+	}
+	
+}
