@@ -50,6 +50,13 @@ def writeNumPyArrayIntoFile(array, filename):
         # then create it.
         os.makedirs(folder)
     np.save(filename, array)
+#Load a NumPy array saved into a file
+def readNumPyArray(fileName):
+    if os.path.isfile(fileName):
+        return np.load(fileName)
+    else:
+        print("File "+fileName+" does not exists.")
+        return np.array([])
 
 #Get filename without extension
 def getFileName(path):
