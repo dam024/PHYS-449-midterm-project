@@ -5,19 +5,23 @@ import Generator as G
 import Critic as C
 import InputManager as IM
 import warnings
+import FileInteraction as FI
 
 class NeuralNetwork:
 
-	__generatorModelFileName = 'generator.pt'
-	__criticModelFileName = 'critic.pt'
+	__generatorModelKey = 'generator_state_dict'
+	__criticModelKey = 'critic_state_dict'
 
 	def device():
 		try:
 			l = b
 			return torch.device("mps")
 		except:
-			print("Warning: Impossible to find mps device. So the device is set to the cpu.")
-			return torch.device("cpu")
+			try:
+				return torch.device("cuba:0")
+			except:
+				warnings.warn("Impossible to find mps device. So the device is set to the cpu.")
+				return torch.device("cpu")
 
 	#params : NN Structure parameters from param.json
 	def __init__(self,params, isTraining,modelSavingPath):
@@ -41,7 +45,7 @@ class NeuralNetwork:
 		return 0
 
 	def trainNetwork(self,inputManager,params,modelSavingPath):
-		print("Start training...")
+		print("Start training...\n")
 		#Define the optimizer
 		warnings.warn('Define the optimizer here. I don\'t know which one it is')
 		#Define loss function
@@ -52,44 +56,55 @@ class NeuralNetwork:
 
 		#Train the data. Read in the article how it is done and add the necessary parameters
 		for epoch in range(params['epoch']):
-			data = inputManager.getTrainData()
+			data = inputManager.getTrainData(NeuralNetwork.device())
 
-			warnings.warn('Training process is maybe not correct.. waiting for the critic and the generator to be done.')
+			warnings.warn('Training process is maybe not correct... waiting for the critic and the generator to be done.')
 			generated = self.forward(data.x)
-			train_val  = self.forwardCritic(generated, data.y)
+			train_val = self.forwardCritic(generated, data.y)
 			obj_vals.append(train_val)
+
 			warnings.warn('Implement backward propagation here')
 
 			if (epoch+1) % params['display_epochs'] == 0:
 				print('Epoch [{}/{}]'.format(epoch+1, params['epoch'])+\
                       '\tTraining Loss: {:.4f}'.format(train_val))
 		print('Final training results : \tloss: {:.4f}'.format(obj_vals[-1]))
+		print("End of training \n")
 		self.saveParameters(modelSavingPath)
+		print("Model saved in file : "+modelSavingPath)
+		return obj_vals
 
 	#This method will save all the training parameters, so that we can reuse them in a futur run of the program
 	def saveParameters(self,path):
-		#warnings.warn('Implement the method to save the parameters')
-		#Save the generator state
-		torch.save(self.generator.state_dict(), path+'/'+self.__generatorModelFileName)
-		#Save the critic state
-		torch.save(self.critic.state_dict(), path+'/'+self.__criticModelFileName)
+		folderPath = FI.getFolderPath(path)
+		fileName, extension = FI.getFileName(path)
+
+		#make sure all folders are created
+		if not os.path.exists(folderPath):
+			os.makedirs(folderPath)
+		#make sure the file exists. If not, we create one
+		if extension != ".pt":
+			newPath = folderPath+'/'+fileName+'.pt'
+			print("Error : File at "+path+" should have extension .pt But don't worry, I thought to that case and I created at this path : "+newPath)
+			path = newPath
+			
+		torch.save({
+			self.__generatorModelKey: self.generator.state_dict(),
+			self.__criticModelKey: self.critic.state_dict(),
+			},path)
 
 
 	#This method will get all the training parameters we saved last time. 
 	def getParameters(self,path):
-		#warnings.warn('Implement the method to get the parameters')
-		#load the generator
-		self.generator = NeuralNetwork.loadModel(self.generator, path+'/'+self.__generatorModelFileName)
-		#load the critic
-		self.critic = NeuralNetwork.loadModel(self.critic,path+'/'+self.__criticModelFileName)
+		if not os.path.exists(path):
+			print("Error : Model File "+path+" does not exist.")
+			exit(1)
+		state_dict = torch.load(path)
+		self.generator.load_state_dict(state_dict[self.__generatorModelKey])
+		self.critic.load_state_dict(state_dict[self.__criticModelKey])
 
-	def loadModel(model,fileName):
-		if not os.path.exists(fileName):
-			print("File "+fileName+" does not exist. You shouldn't have touched anything that is the same directory... program stopped")
-		model.load_state_dict(torch.load(fileName))
-		model.eval()
-		#model.train()
-		return model
+		self.generator.eval()
+		self.critic.eval()
 
 	def saveOutput(self,output,fileName):
 		torch.save(output, fileName)

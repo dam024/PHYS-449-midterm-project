@@ -29,16 +29,18 @@ class InputManager():
 		if seed != None:
 			random.seed(seed)
 		#Read input data
-		data = FI.readFileNumbers(inputPath)
-
-		warnings.warn("Need to format input data. Temporary code")
-		self.N = 100 #Size of the cube
+		#data = FI.readFileNumbers(inputPath)
 
 		#The data should be formatted in the following way here : 
 		#Input is a 5 dimensional tensor : 1st dimension gives the input number, 2nd dimension just contain the rest, 3rd dimension is x values, 4th dimension is y values and 5th dimension is z values. 
-		self.dataInput = np.random.rand(self.N,self.N, self.N)#Temporary data structure for input data
-		self.dataOutput = np.random.rand(self.N, self.N, self.N)#Temporary data structure for expected output data
+		self.dataInput = np.load('input/input.npy')
+		self.dataOutput = np.load('input/expected.npy')
 
+		self.N = len(self.dataInput) #Size of the cube
+		
+		if self.size > self.N:
+			print("Error : Total data size is smaller than the configured working box...")
+			exit(2)
 		#Preparing the test data. We take the first n test data :
 		#n = int(len(self.dataInput)*params['ratio_test_data'])
 		#print(n)
@@ -48,7 +50,7 @@ class InputManager():
 		#self.train_output = 
 		#self.test_output = 
 	#Return a random box from the main data
-	def getTrainData(self):
+	def getTrainData(self, device=torch.device("cpu")):
 		xs = random.randint(0, self.N - self.size - 1)
 		ys = random.randint(0, self.N - self.size - 1)
 		zs = random.randint(0, self.N - self.size - 1)
@@ -60,21 +62,21 @@ class InputManager():
 		#print(self.dataInput[xs:xe].shape, self.dataInput[xs:xe][ys:ye].shape, self.dataInput[xs:xe][ys:ye][zs:ze].shape)
 		#print(self.dataInput[xs:xe].shape, self.dataInput[xs:xe,ys:ye].shape, self.dataInput[xs:xe,ys:ye,zs:ze].shape)
 		data = Data()
-		data.x = torch.from_numpy(np.array([[self.dataInput[xs:xe,ys:ye,zs:ze]]],dtype=np.float32))
-		data.y = torch.from_numpy(np.array([[self.dataOutput[xs:xe,ys:ye,zs:ze]]],dtype=np.float32))
+		data.x = torch.from_numpy(np.array([[self.dataInput[xs:xe,ys:ye,zs:ze]]],dtype=np.float32)).to(device)
+		data.y = torch.from_numpy(np.array([[self.dataOutput[xs:xe,ys:ye,zs:ze]]],dtype=np.float32)).to(device)
 		#print(data.x.size(), data.y.size(), self.dataInput.shape, self.dataOutput.shape)
 		#exit()
 		return data
 	#Return a defined box from the origin point
-	def getBox(self,xs,ys,zs):
+	def getBox(self,xs,ys,zs,device=torch.device("cpu")):
 
 		xe = xs + self.size
 		ye = ys + self.size
 		ze = zs + self.size
 
 		data = Data()
-		data.x = torch.from_numpy(np.array([[self.dataInput[xs:xe,ys:ye,zs:ze]]],dtype=np.float32))
-		data.y = torch.from_numpy(np.array([[self.dataOutput[xs:xe,ys:ye,zs:ze]]],dtype=np.float32))
+		data.x = torch.from_numpy(np.array([[self.dataInput[xs:xe,ys:ye,zs:ze]]],dtype=np.float32)).to(device)
+		data.y = torch.from_numpy(np.array([[self.dataOutput[xs:xe,ys:ye,zs:ze]]],dtype=np.float32)).to(device)
 		#print(data.x.size(),data.y.size())
 		#exit()
 		return data

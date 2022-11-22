@@ -1,6 +1,7 @@
 import os
 import sys
 import json
+import numpy as np
 
 
 def readFileNumbers(fileName):
@@ -41,15 +42,25 @@ def writeArrayIntoFile(array,fileName,mode='w+',dFormat='0.4f'):
             else:
                 file.write(format(array[i],dFormat) + '\n')
 
+#Save a NumPy array into a file. The output file is the encoded
+def writeNumPyArrayIntoFile(array, filename):
+    folder = getFolderPath(filename)
+    if not os.path.exists(folder):
+        # if the demo_folder directory is not present 
+        # then create it.
+        os.makedirs(folder)
+    np.save(filename, array)
+
 #Get filename without extension
 def getFileName(path):
     path, extension = os.path.splitext(path)
     splited = path.split('/')
-    return splited[-1]
+    return splited[-1], extension
 def getFolderPath(path):
     path, extension = os.path.splitext(path)
     splited = path.split('/')
     return '/'.join(splited[0:-1])
+
 
 if __name__ == "__main__":
     pass
