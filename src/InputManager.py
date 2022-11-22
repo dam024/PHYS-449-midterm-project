@@ -1,39 +1,83 @@
 import FileInteraction as FI
 import torch
 import torch.nn as nn
+import random
+import numpy as np
+import warnings
+
+class Data:
+	def __init__(self):
+
+		pass
 
 class InputManager():
 	""" Data manager. It contains and manage all the data. 
 
 		Properties :  
 			- N : size of the cube, i.e. size of each data
-			- test_input : input test data
-			- test_output : expected output test data
-			- train_input : input train data
-			- train_output : expected output train data
+			- dataInput : input test -> do not access directly
+			- dataOutput : expected output test data -> do not access directly
+		Methods : 
+			- getTrainData : get a random sample of the train data
 	"""
 
 	#inputPath : path to the input data
 	#params : data structure parameters from param.json file
 	def __init__(self, inputPath,params):
+		seed  = params['random_seed']
+		self.size = params['training_size']
+		if seed != None:
+			random.seed(seed)
+		#Read input data
 		data = FI.readFileNumbers(inputPath)
 
-		#Treat input data...
-		print("Need to format input data. Temporary code")
-		self.N = 10 #Size of the cube
+		warnings.warn("Need to format input data. Temporary code")
+		self.N = 100 #Size of the cube
 
 		#The data should be formatted in the following way here : 
 		#Input is a 5 dimensional tensor : 1st dimension gives the input number, 2nd dimension just contain the rest, 3rd dimension is x values, 4th dimension is y values and 5th dimension is z values. 
-		data = torch.randn(101,1,self.N,self.N, self.N)#Temporary data structure
+		self.dataInput = np.random.rand(self.N,self.N, self.N)#Temporary data structure for input data
+		self.dataOutput = np.random.rand(self.N, self.N, self.N)#Temporary data structure for expected output data
 
 		#Preparing the test data. We take the first n test data :
-		n = int(data.size()[0]*params['ratio_test_data'])
-		print(n)
+		#n = int(len(self.dataInput)*params['ratio_test_data'])
+		#print(n)
 
-		self.train_input = data[0:n]
-		self.test_input = data[n:]
+		#self.train_input = data[0:n]
+		#self.test_input = data[n:]
 		#self.train_output = 
 		#self.test_output = 
+	#Return a random box from the main data
+	def getTrainData(self):
+		xs = random.randint(0, self.N - self.size - 1)
+		ys = random.randint(0, self.N - self.size - 1)
+		zs = random.randint(0, self.N - self.size - 1)
+		xe = xs + self.size
+		ye = ys + self.size
+		ze = zs + self.size
+
+		#print(xs, xe, ys, ye, zs, ze)
+		#print(self.dataInput[xs:xe].shape, self.dataInput[xs:xe][ys:ye].shape, self.dataInput[xs:xe][ys:ye][zs:ze].shape)
+		#print(self.dataInput[xs:xe].shape, self.dataInput[xs:xe,ys:ye].shape, self.dataInput[xs:xe,ys:ye,zs:ze].shape)
+		data = Data()
+		data.x = torch.from_numpy(np.array([[self.dataInput[xs:xe,ys:ye,zs:ze]]],dtype=np.float32))
+		data.y = torch.from_numpy(np.array([[self.dataOutput[xs:xe,ys:ye,zs:ze]]],dtype=np.float32))
+		#print(data.x.size(), data.y.size(), self.dataInput.shape, self.dataOutput.shape)
+		#exit()
+		return data
+	#Return a defined box from the origin point
+	def getBox(self,xs,ys,zs):
+
+		xe = xs + self.size
+		ye = ys + self.size
+		ze = zs + self.size
+
+		data = Data()
+		data.x = torch.from_numpy(np.array([[self.dataInput[xs:xe,ys:ye,zs:ze]]],dtype=np.float32))
+		data.y = torch.from_numpy(np.array([[self.dataOutput[xs:xe,ys:ye,zs:ze]]],dtype=np.float32))
+		#print(data.x.size(),data.y.size())
+		#exit()
+		return data
 
 
 if __name__ == '__main__':

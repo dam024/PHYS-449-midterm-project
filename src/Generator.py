@@ -83,9 +83,9 @@ class Generator(nn.Module):
     # parameters :
     #   - obtained : the output obtained 
     #   - expected : the expected output
-    #   - loss : loss function (Critics)
+    #   - lossFunction : loss function (Critics)
     #   - optimizer : the optimizer we should use
-    def backward(self, obtained, expected, loss, optimizer):
+    def backward(self, obtained, expected, lossFunction, optimizer):
         loss = 0
         return loss
 
