@@ -81,52 +81,21 @@ class Generator(nn.Module):
 
     # Execute the backward propagation on the Generator. Warning : do not call forward method.
     # parameters :
-    #   - obtained : the output obtained 
+    #   - inputs : input data for the generator
     #   - expected : the expected output
     #   - lossFunction : loss function (Critics)
     #   - optimizer : the optimizer we should use
-    def backward(self, obtained, expected, lossFunction, optimizer):
-        loss = 0
+    def backprop(self, inputs, expected, critic, optimizer):
+        for p in critic.parameter():
+            p.requires_grad = False  #avoids critic backprop
+        
+        gen_img = self.forward(inputs)
+        loss = critic(gen_img, expected)    #might need to be changed to mean
+
+        optimizer.zero_grad()
+        loss.backward()
+        optimizer.step()
+
         return loss
 
         
-        
-
-
-
-
-
-
-
-    
-
-
-
-
-    
-
-    
-
-
-
-
-
-
-        
-
-        
-
-
-
-
-
-        
-
-                            
-
-    
-
-
-
-
-
