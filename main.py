@@ -10,8 +10,6 @@ import NeuralNetwork as NN
 
 def main(prefix):
 	parser  = argparse.ArgumentParser(description="""Neural network to paint halos from cosmic density fields of dark matter
-
-		A good way 
 		""",formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 	parser.add_argument('-p','--param',help='Path to json file containing the parameters for the program. See example at default location.',default=prefix+'parameters/param.json')
 	parser.add_argument('-r','--result',help='Path to a folder where the results will be created',default=prefix+"results")
