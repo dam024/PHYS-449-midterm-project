@@ -42,8 +42,11 @@ class NeuralNetwork:
 
 	#Execute the critic and return the loss. It takes as arguments the generated halo counts and the real halo counts. 
 	def forwardCritic(self,generated, real):
-		warnings.warn('Implement here the execution of the critic. It correspond to a forward method.')
-		return 0
+                real=self.critic.forward(real)
+                gen=self.critic.forward(generated)
+                loss = gen-real
+                print(loss)
+                return loss
 
 	def trainNetwork(self,inputManager,params,modelSavingPath):
 		print("Start training...\n")
@@ -112,7 +115,8 @@ class NeuralNetwork:
 				return
 		state_dict = torch.load(path)
 		self.generator.load_state_dict(state_dict[self.__generatorModelKey])
-		self.critic.load_state_dict(state_dict[self.__criticModelKey])
+                warnings.warn('Implement critic state dictionary')
+                #self.critic.load_state_dict(state_dict[self.__criticModelKey])
 		if resumeTraining:
 			self.epoch = state_dict[self.__epochKey]
 			print("Training has been resumed")
