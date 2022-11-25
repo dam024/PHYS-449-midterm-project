@@ -2,7 +2,7 @@
 	"DataStructure":{
 		"ratio_test_data":0.1,
 		"random_seed":10,
-		"training_size":10
+		"training_size":27
 	},
 	"NN_structure": {
 		"num_convs":2,
@@ -10,7 +10,7 @@
 		"initial_filter_num":1
 	},
 	"training":{
-		"epoch":2000,
+		"epoch":2,
 		"epoch_generator":10,
 		"epoch_critic":20,
 		"display_epochs":100,

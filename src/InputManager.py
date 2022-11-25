@@ -7,7 +7,6 @@ import warnings
 
 class Data:
 	def __init__(self):
-
 		pass
 
 class InputManager():
@@ -63,7 +62,7 @@ class InputManager():
 		#print(self.dataInput[xs:xe].shape, self.dataInput[xs:xe,ys:ye].shape, self.dataInput[xs:xe,ys:ye,zs:ze].shape)
 		data = Data()
 		data.x = torch.from_numpy(np.array([[self.dataInput[xs:xe,ys:ye,zs:ze]]],dtype=np.float32)).to(device)
-		data.y = torch.from_numpy(np.array([[self.dataOutput[xs:xe,ys:ye,zs:ze]]],dtype=np.float32)).to(device)
+		data.y = torch.from_numpy(np.array([[self.dataOutput[xs:(xe-8),ys:(ye-8),zs:(ze-8)]]],dtype=np.float32)).to(device)
 		#print(data.x.size(), data.y.size(), self.dataInput.shape, self.dataOutput.shape)
 		#exit()
 		return data
@@ -76,8 +75,8 @@ class InputManager():
 
 		data = Data()
 		data.x = torch.from_numpy(np.array([[self.dataInput[xs:xe,ys:ye,zs:ze]]],dtype=np.float32)).to(device)
-		data.y = torch.from_numpy(np.array([[self.dataOutput[xs:xe,ys:ye,zs:ze]]],dtype=np.float32)).to(device)
-		#print(data.x.size(),data.y.size())
+		data.y = torch.from_numpy(np.array([[self.dataOutput[xs:(xe-8),ys:(ye-8),zs:(ze-8)]]],dtype=np.float32)).to(device)
+		print(data.x.size(),data.y.size())
 		#exit()
 		return data
 

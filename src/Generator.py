@@ -84,11 +84,11 @@ class Generator(nn.Module):
     #   - inputs : input data for the generator
     #   - critic : the critic used 
     #   - optimizer : the optimizer we should use 
-    def backprop(self, inputs, critic, optimizer):
-        for p in critic.parameter():
+    def backprop(self, inputs,gen_img, critic, optimizer):
+        for p in critic.parameters():
             p.requires_grad = False  #avoids calculation of critic
         
-        gen_img = self.forward(inputs)
+
         loss = critic(gen_img).mean()    
 
         optimizer.zero_grad()

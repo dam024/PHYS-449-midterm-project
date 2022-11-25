@@ -28,12 +28,13 @@ def main(prefix):
 	inputManager = IM.InputManager(args.input,param['DataStructure'])
 
 	#Create network
-	network  = NN.NeuralNetwork(param['NN_structure'], args.isTraining,args.model,args.resumeTraining)
+	network  = NN.NeuralNetwork(param['NN_structure'],param['training'], args.isTraining,args.model,args.resumeTraining)
 
 	#To save/retriev the loss
 	lossPath = args.result+'/'+'loss'
 
 	#We resume the loss if necessary, like if we are in deployement mode or we resumeTraining
+	lossValues = []
 	if not args.isTraining or args.resumeTraining:
 		lossValues = network.resumeLoss(lossPath+'.npy')
 
@@ -44,6 +45,7 @@ def main(prefix):
 		except:
 			network.saveParameters(args.model)
 			raise
+		print(lossValues)
 		FI.writeNumPyArrayIntoFile(lossValues, lossPath)
 		print('Loss values saved in file '+lossPath)
 
