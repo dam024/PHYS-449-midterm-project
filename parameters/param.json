@@ -11,7 +11,11 @@
 	},
 	"training":{
 		"epoch":2000,
+		"epoch_generator":10,
+		"epoch_critic":20,
 		"display_epochs":100,
+		"display_epochs_critic":1,
+		"display_epochs_generator":2,
 		"learning_rate_generator":1e-2,
 		"learning_rate_critic":1e-2
 	}
