@@ -12,6 +12,8 @@ class NeuralNetwork:
 	__generatorModelKey = 'generator_state_dict'
 	__criticModelKey = 'critic_state_dict'
 	__epochKey = 'epoch'
+	__epochKeyCritic = 'epochCritic'
+	__epochKeyGenerator='epochGenerator'
 
 	def device():
 		try:
@@ -42,19 +44,25 @@ class NeuralNetwork:
 
 	#Execute the critic and return the loss. It takes as arguments the generated halo counts and the real halo counts. 
 	def forwardCritic(self,generated, real):
-                real=self.critic.forward(real)
-                gen=self.critic.forward(generated)
-                loss = gen-real
-                print(loss)
-                return loss
+		real=self.critic.forward(real)
+		gen=self.critic.forward(generated)
+		loss = gen-real
+		print(loss)
+		return loss
 
 	def trainNetwork(self,inputManager,params,modelSavingPath):
 		print("Start training...\n")
 		#Initialize the epoch parameter if it was not done before. This is to be able to start from previous state if needed
 		if not hasattr(self, 'epoch'):
 			self.epoch = 0
+		if not hasattr(self, 'epochCritic'):
+			self.epochCritic = 0
+		if not hasattr(self, 'epochGenerator'):
+			self.epochGenerator = 0
 		#Define the optimizer
 		warnings.warn('Define the optimizer here. I don\'t know which one it is')
+		self.optimizerGenerator = torch.optim.Adam(self.generator.parameters(),lr=params['learning_rate_generator'])
+		self.optimizerCritic = torch.optim.Adam(self.critic.parameters(),lr=params['learning_rate_critic'])
 		#Define loss function
 		warnings.warn('Define the loss function here. This is the Critic')
 
@@ -64,16 +72,33 @@ class NeuralNetwork:
 
 		#Train the data. Read in the article how it is done and add the necessary parameters
 		for epoch in range(self.epoch,params['epoch']):
+			print("Training procedure [{}/{}]".format(epoch+1,params['epoch'])+" :")
 			self.epoch = epoch
 			data = inputManager.getTrainData(NeuralNetwork.device())
 
+			print("Training the critic :")
+			for epochCritic in range(self.epochCritic,params['epoch_critic']):
+				self.epochCritic = epochCritic
+				if (epochCritic+1) % params['display_epochs_critic'] == 0:
+					print('Epoch [{}/{}]'.format(epochCritic+1, params['epoch_critic'])+\
+                      '\tTraining Loss: {:.4f}'.format(train_val))
+			print()
+			print("Training the generator")
+			for epochGenerator in range(self.epochGenerator, params['epoch_generator']):
+				self.epochGenerator = epochGenerator
+				if (epochCritic+1) % params['display_epochs_generator'] == 0:
+					print('Epoch [{}/{}]'.format(epochGenerator+1, params['epoch_generator'])+\
+                      '\tTraining Loss: {:.4f}'.format(train_val))
 			warnings.warn('Training process is maybe not correct... waiting for the critic and the generator to be done.')
 			generated = self.forward(data.x)
 			train_val = self.forwardCritic(generated, data.y)
 			self.obj_vals.append(train_val)
 
 			warnings.warn('Implement backward propagation here')
-
+			print()
+			print()
+			self.epochGenerator = 0
+			self.epochCritic = 0
 			if (epoch+1) % params['display_epochs'] == 0:
 				print('Epoch [{}/{}]'.format(epoch+1, params['epoch'])+\
                       '\tTraining Loss: {:.4f}'.format(train_val))
@@ -101,7 +126,9 @@ class NeuralNetwork:
 		torch.save({
 			self.__generatorModelKey: self.generator.state_dict(),
 			self.__criticModelKey: self.critic.state_dict(),
-			self.__epochKey: self.epoch
+			self.__epochKey: self.epoch,
+			self.__epochKeyCritic: self.epochCritic,
+			self.__epochKeyGenerator: self.epochGenerator
 			},path)
 
 
@@ -115,10 +142,11 @@ class NeuralNetwork:
 				return
 		state_dict = torch.load(path)
 		self.generator.load_state_dict(state_dict[self.__generatorModelKey])
-                warnings.warn('Implement critic state dictionary')
-                #self.critic.load_state_dict(state_dict[self.__criticModelKey])
+		self.critic.load_state_dict(state_dict[self.__criticModelKey])
 		if resumeTraining:
 			self.epoch = state_dict[self.__epochKey]
+			self.epochCritic = state_dict[self.__epochKeyCritic]
+			self.epochGenerator = state_dict[self.__epochKeyGenerator]
 			print("Training has been resumed")
 
 		self.generator.eval()
