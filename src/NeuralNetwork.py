@@ -42,11 +42,11 @@ class NeuralNetwork:
 
 	#Execute the critic and return the loss. It takes as arguments the generated halo counts and the real halo counts. 
 	def forwardCritic(self,generated, real):
-                real=self.critic.forward(real)
-                gen=self.critic.forward(generated)
-                loss = gen-real
-                print(loss)
-                return loss
+		real=self.critic.forward(real)
+		gen=self.critic.forward(generated)
+		loss = gen-real
+		print(loss)
+		return loss
 
 	def trainNetwork(self,inputManager,params,modelSavingPath):
 		print("Start training...\n")
@@ -55,6 +55,8 @@ class NeuralNetwork:
 			self.epoch = 0
 		#Define the optimizer
 		warnings.warn('Define the optimizer here. I don\'t know which one it is')
+		optimizerGenerator = torch.optim.Adam(self.generator.parameters(),lr=params['learning_rate_generator'])
+		optimizerGenerator = torch.optim.Adam(self.critic.parameters(),lr=params['learning_rate_critic'])
 		#Define loss function
 		warnings.warn('Define the loss function here. This is the Critic')
 
@@ -115,8 +117,7 @@ class NeuralNetwork:
 				return
 		state_dict = torch.load(path)
 		self.generator.load_state_dict(state_dict[self.__generatorModelKey])
-                warnings.warn('Implement critic state dictionary')
-                #self.critic.load_state_dict(state_dict[self.__criticModelKey])
+		self.critic.load_state_dict(state_dict[self.__criticModelKey])
 		if resumeTraining:
 			self.epoch = state_dict[self.__epochKey]
 			print("Training has been resumed")

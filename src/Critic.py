@@ -23,6 +23,6 @@ class Critic(nn.Module):
         nn.LeakyReLU(negative_slope=self.alpha)
         )
 
-        def forward(self, x):
-            out = self.main(x)
-            return torch.flatten(out)
+    def forward(self, x):
+        out = self.main(x)
+        return torch.flatten(out)
