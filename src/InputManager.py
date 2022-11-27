@@ -4,6 +4,7 @@ import torch.nn as nn
 import random
 import numpy as np
 import warnings
+import os
 
 class Data:
 	def __init__(self):
@@ -32,8 +33,14 @@ class InputManager():
 
 		#The data should be formatted in the following way here : 
 		#Input is a 5 dimensional tensor : 1st dimension gives the input number, 2nd dimension just contain the rest, 3rd dimension is x values, 4th dimension is y values and 5th dimension is z values. 
-		self.dataInput = np.load('input/input.npy')
-		self.dataOutput = np.load('input/expected.npy')
+		inpPath = inputPath+'/input.npy'
+		expectedPath = inputPath+'/expected.npy'
+		if os.path.exists(inpPath) and os.path.exists(expectedPath):
+			self.dataInput = np.load(inpPath)
+			self.dataOutput = np.load(expectedPath)
+		else:
+			print("Impossible to find output data in folder "+inputPath+" : "+inpPath+" and "+expectedPath)
+			exit(1)
 
 		self.N = len(self.dataInput) #Size of the cube
 		
@@ -76,7 +83,7 @@ class InputManager():
 		data = Data()
 		data.x = torch.from_numpy(np.array([[self.dataInput[xs:xe,ys:ye,zs:ze]]],dtype=np.float32)).to(device)
 		data.y = torch.from_numpy(np.array([[self.dataOutput[xs:(xe-8),ys:(ye-8),zs:(ze-8)]]],dtype=np.float32)).to(device)
-		print(data.x.size(),data.y.size())
+		#print(data.x.size(),data.y.size())
 		#exit()
 		return data
 

@@ -1,3 +1,3 @@
-#rm model/model.pt
-#rm results/*
+rm model/model.pt
+rm results/*
 python3 main.py -t -rt

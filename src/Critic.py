@@ -28,5 +28,5 @@ class Critic(nn.Module):
         return torch.flatten(out)
 
     def backprop(self,lossValue,optimizer):
-    	loss = 0
+    	loss = 1
     	return loss

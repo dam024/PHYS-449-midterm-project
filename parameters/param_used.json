@@ -10,7 +10,7 @@
 		"initial_filter_num":1
 	},
 	"training":{
-		"epoch":3,
+		"epoch":10,
 		"epoch_generator":10,
 		"epoch_critic":20,
 		"display_epochs":100,

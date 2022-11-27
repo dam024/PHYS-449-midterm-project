@@ -92,10 +92,6 @@ class NeuralNetwork:
 					print('Epoch [{}/{}]'.format(epochCritic+1, params['epoch_critic'])+\
                       '\tTraining Loss: {:.4f}'.format(train_val))
 			#Append the new loss result
-			print(self.obj_vals)
-			print(type(self.obj_vals))
-			print(self.obj_vals.keys())
-			print(self.obj_vals['critic'])
 			self.obj_vals['critic'].append(tmpTrainLoss)
 			tmpTrainLoss = []
 			print()
@@ -167,6 +163,7 @@ class NeuralNetwork:
 				print("Error : Model File "+path+" does not exist.")
 				exit(1)
 			else:
+				print("No model to retrive...")
 				return
 		state_dict = torch.load(path)
 		self.generator.load_state_dict(state_dict[self.__generatorModelKey])
@@ -176,7 +173,8 @@ class NeuralNetwork:
 		self.optimizerCritic.load_state_dict(state_dict[self.__criticOptimizerKey])
 		#print("Resume loss : ",
 		self.obj_vals = self.resumeLoss(lossPath+'.pt')
-		print("Loss from "+lossPath+'.pt has been resumed')
+		if self.obj_vals != NeuralNetwork.initLossArray():
+			print("Loss from "+lossPath+'.pt has been resumed')
 		#print(self.obj_vals)
 		if resumeTraining:
 			self.epoch = state_dict[self.__epochKey]
