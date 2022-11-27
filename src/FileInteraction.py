@@ -53,7 +53,7 @@ def writeNumPyArrayIntoFile(array, filename):
 #Load a NumPy array saved into a file
 def readNumPyArray(fileName):
     if os.path.isfile(fileName):
-        return np.load(fileName)
+        return np.load(fileName,allow_pickle=True)
     else:
         print("File "+fileName+" does not exists.")
         return np.array([])
