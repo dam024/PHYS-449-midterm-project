@@ -48,12 +48,15 @@ def testExport(args):
 	assert(lossValues3 != lossValues2),"Two training have the exact same loss"
 	
 	output3 = network3.forward(dataTest.x)
+	loss3 = network3.forwardCritic(output3, dataTest.y)
 
 	print("Training without resuming success")
 	## Check that the deployment procedure is working
 	network4 = NN.NeuralNetwork(param['NN_structure'], param['training'], isTraining=False, modelSavingPath='model/model_test.pt', resumeTraining=False, lossPath=lossPath)
 	output4 = network4.forward(dataTest.x)
-	assert(((output3 - output4) > epsilon).int().sum().item() == 0),"Unexcepted output. We expected they would be the same, but they aren't. Got : network4 "+str(output4)+" network3 "+str(output3)
+	loss4 = network4.forwardCritic(output4, dataTest.y)
+	assert(((output3 - output4) > epsilon).int().sum().item() == 0),"Unexcepted output for the generator. We expected they would be the same, but they aren't. Got : network4 "+str(output4)+" network3 "+str(output3)
+	assert(((loss3 - loss4) > epsilon).int().sum().item() == 0),"Unexcepted output for the critic. We expected they would be the same, but they aren't. Got : network4 "+str(loss4)+" network3 "+str(loss3)
 	print("Deployment success ")
 	
 	print("Test export success")
