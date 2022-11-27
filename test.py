@@ -25,6 +25,7 @@ def testExport(args):
 		assert(False),"Loss has not been saved"
 	if not os.path.exists('model/model_test.pt'):
 		assert(False),"Model has not been saved"
+	print("Creation of exported model success")
 	### The netwrok must be saved now. So we simulate a resume of training
 	param['training']['epoch'] += 1
 	network2 = NN.NeuralNetwork(param['NN_structure'], param['training'], isTraining=True, modelSavingPath='model/model_test.pt', resumeTraining=True, lossPath=lossPath)
@@ -38,7 +39,7 @@ def testExport(args):
 			assert(False),"Loss for the Critic is not the same. Got "+str(lossValues1['critic'][i])+" and "+str(lossValues2['critic'][i])
 		if lossValues1['generator'][i] != lossValues2['generator'][i]:
 			assert(False),"Loss for the Generator is not the same"
-
+	print("Resume of training success")
 	### Test without resuming the training
 	network3 = NN.NeuralNetwork(param['NN_structure'], param['training'], isTraining=True, modelSavingPath='model/model_test.pt', resumeTraining=False, lossPath=lossPath)
 	#Train the new network
@@ -48,12 +49,13 @@ def testExport(args):
 	
 	output3 = network3.forward(dataTest.x)
 
-
+	print("Training without resuming success")
 	## Check that the deployment procedure is working
 	network4 = NN.NeuralNetwork(param['NN_structure'], param['training'], isTraining=False, modelSavingPath='model/model_test.pt', resumeTraining=False, lossPath=lossPath)
 	output4 = network4.forward(dataTest.x)
 	assert(((output3 - output4) > epsilon).int().sum().item() == 0),"Unexcepted output. We expected they would be the same, but they aren't. Got : network4 "+str(output4)+" network3 "+str(output3)
-
+	print("Deployment success ")
+	
 	print("Test export success")
 
 if __name__ == '__main__':

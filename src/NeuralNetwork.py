@@ -33,6 +33,7 @@ class NeuralNetwork:
 	def __init__(self,params, trainingParams, isTraining,modelSavingPath,resumeTraining,lossPath):
 		super(NeuralNetwork, self).__init__()
 		self.lossPath = lossPath
+		self.verbose = trainingParams['verbose']
 		self.generator = G.Generator(params['num_convs'],params['num_layers'],params['initial_filter_num'])
 		self.critic = C.Critic()
 
@@ -58,7 +59,7 @@ class NeuralNetwork:
 		return loss
 
 	def trainNetwork(self,inputManager,params,modelSavingPath):
-		print("Start training...\n")
+		self.print("Start training...\n")
 		#Initialize the epoch parameter if it was not done before. This is to be able to start from previous state if needed
 		if not hasattr(self, 'epoch'):
 			self.epoch = 0
@@ -73,13 +74,13 @@ class NeuralNetwork:
 
 		#Train the data. Read in the article how it is done and add the necessary parameters
 		for epoch in range(self.epoch,params['epoch']):
-			print("Training procedure [{}/{}]".format(epoch+1,params['epoch'])+" :")
+			self.print("Training procedure [{}/{}]".format(epoch+1,params['epoch'])+" :")
 			self.epoch = epoch
 			data = inputManager.getTrainData(NeuralNetwork.device())
 
 			tmpTrainLoss = []
 
-			print("Training the critic :")
+			self.print("Training the critic :")
 			generated = self.forward(data.x)
 			for epochCritic in range(self.epochCritic,params['epoch_critic']):
 				self.epochCritic = epochCritic
@@ -89,13 +90,13 @@ class NeuralNetwork:
 				tmpTrainLoss.append(train_val)
 
 				if (epochCritic+1) % params['display_epochs_critic'] == 0:
-					print('Epoch [{}/{}]'.format(epochCritic+1, params['epoch_critic'])+\
+					self.print('Epoch [{}/{}]'.format(epochCritic+1, params['epoch_critic'])+\
                       '\tTraining Loss: {:.4f}'.format(train_val))
 			#Append the new loss result
 			self.obj_vals['critic'].append(tmpTrainLoss)
 			tmpTrainLoss = []
-			print()
-			print("Training the generator")
+			self.print()
+			self.print("Training the generator")
 			for epochGenerator in range(self.epochGenerator, params['epoch_generator']):
 				self.epochGenerator = epochGenerator
 
@@ -104,26 +105,26 @@ class NeuralNetwork:
 				tmpTrainLoss.append(train_val)
 
 				if (epochCritic+1) % params['display_epochs_generator'] == 0:
-					print('Epoch [{}/{}]'.format(epochGenerator+1, params['epoch_generator'])+\
+					self.print('Epoch [{}/{}]'.format(epochGenerator+1, params['epoch_generator'])+\
                       '\tTraining Loss: {:.4f}'.format(train_val))
 			
 			#Append loss
-			#print(len(self.obj_vals['generator']))
+			#self.print(len(self.obj_vals['generator']))
 			self.obj_vals['generator'].append(tmpTrainLoss)
-			#print(len(self.obj_vals['generator']))
-			print()
-			print()
+			#self.print(len(self.obj_vals['generator']))
+			self.print()
+			self.print()
 			self.epochGenerator = 0
 			self.epochCritic = 0
 			if (epoch+1) % params['display_epochs'] == 0:
-				print('Epoch [{}/{}]'.format(epoch+1, params['epoch'])+\
+				self.print('Epoch [{}/{}]'.format(epoch+1, params['epoch'])+\
                       '\tTraining Loss: {:.4f}'.format(train_val))
 		self.epoch = params['epoch']#To stop at the correct epoch in case of success
-		print("End of training \n")
+		self.print("End of training \n")
 		if len(self.obj_vals['critic']) > 0 and len(self.obj_vals['generator']) > 0:
-			print('Final training results : \tGenerator: {:.4f} \tCritic: {:.4f}'.format(self.obj_vals['generator'][-1][-1],self.obj_vals['critic'][-1][-1]))
+			self.print('Final training results : \tGenerator: {:.4f} \tCritic: {:.4f}'.format(self.obj_vals['generator'][-1][-1],self.obj_vals['critic'][-1][-1]))
 		self.saveParameters(modelSavingPath,self.lossPath)
-		print("Model saved in file : "+modelSavingPath)
+		self.print("Model saved in file : "+modelSavingPath)
 		return self.obj_vals
 
 	#This method will save all the training parameters, so that we can reuse them in a futur run of the program
@@ -137,13 +138,13 @@ class NeuralNetwork:
 		#make sure the file exists. If not, we create one
 		if extension != ".pt":
 			newPath = folderPath+'/'+fileName+'.pt'
-			print("Error : File at "+path+" should have extension .pt But don't worry, I thought to that case and I created at this path : "+newPath)
+			self.print("Error : File at "+path+" should have extension .pt But don't worry, I thought to that case and I created at this path : "+newPath)
 			path = newPath
 			
 		#FI.writeNumPyArrayIntoFile(self.obj_vals, lossPath)
-		#print("Save loss : ",self.obj_vals)
+		#self.print("Save loss : ",self.obj_vals)
 		self.saveOutput(self.obj_vals, lossPath+'.pt')
-		print('Loss values saved in file '+lossPath+'.pt')
+		self.print('Loss values saved in file '+lossPath+'.pt')
 
 		torch.save({
 			self.__generatorModelKey: self.generator.state_dict(),
@@ -160,10 +161,10 @@ class NeuralNetwork:
 	def getParameters(self,path,resumeTraining,lossPath):
 		if not os.path.exists(path):
 			if not resumeTraining:
-				print("Error : Model File "+path+" does not exist.")
+				self.print("Error : Model File "+path+" does not exist.")
 				exit(1)
 			else:
-				print("No model to retrive...")
+				self.print("No model to retrive...")
 				return
 		state_dict = torch.load(path)
 		self.generator.load_state_dict(state_dict[self.__generatorModelKey])
@@ -171,16 +172,16 @@ class NeuralNetwork:
 
 		self.optimizerGenerator.load_state_dict(state_dict[self.__generatorOptimizerKey])
 		self.optimizerCritic.load_state_dict(state_dict[self.__criticOptimizerKey])
-		#print("Resume loss : ",
+		#self.print("Resume loss : ",
 		self.obj_vals = self.resumeLoss(lossPath+'.pt')
 		if self.obj_vals != NeuralNetwork.initLossArray():
-			print("Loss from "+lossPath+'.pt has been resumed')
-		#print(self.obj_vals)
+			self.print("Loss from "+lossPath+'.pt has been resumed')
+		#self.print(self.obj_vals)
 		if resumeTraining:
 			self.epoch = state_dict[self.__epochKey]
 			self.epochCritic = state_dict[self.__epochKeyCritic]
 			self.epochGenerator = state_dict[self.__epochKeyGenerator]
-			print("Training has been resumed")
+			self.print("Training has been resumed")
 
 		self.generator.eval()
 		self.critic.eval()
@@ -193,11 +194,11 @@ class NeuralNetwork:
 		#arr = FI.readNumPyArray(fileName)
 		arr = []
 		if os.path.isfile(fileName):
-			#print(fileName)
+			#self.print(fileName)
 			arr = torch.load(fileName)
-			#print(arr)
+			#self.print(arr)
 		else:
-			print("File "+fileName+" does not exists.")
+			self.print("File "+fileName+" does not exists.")
 		if arr != []:
 			self.obj_vals = arr
 		else:
@@ -206,6 +207,11 @@ class NeuralNetwork:
 
 	def initLossArray():
 		return {'generator':[],'critic':[]}
+
+	def print(self,*args):
+		if self.verbose == 1:
+			print(*args)
+
 
 if __name__ == '__main__':
 	import sys
