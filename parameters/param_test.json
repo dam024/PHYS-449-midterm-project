@@ -18,7 +18,8 @@
 		"display_epochs_generator":2,
 		"learning_rate_generator":1e-2,
 		"learning_rate_critic":1e-2,
-		"verbose":0
+		"verbose":0,
+		"gp_weight":10
 	}
 	
 }

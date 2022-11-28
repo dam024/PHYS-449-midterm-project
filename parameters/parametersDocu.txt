@@ -13,3 +13,4 @@ NN Structure:
 
 training:
 	- "epcoh": Number of training iterations 
+	- "gp_weight": weight for gradient penalty, 10 works well
