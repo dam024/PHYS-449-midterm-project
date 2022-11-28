@@ -7,7 +7,6 @@ import Critic as C
 import InputManager as IM
 import warnings
 import FileInteraction as FI
-import gradient_penalty as GP
 
 class NeuralNetwork:
 
@@ -25,7 +24,10 @@ class NeuralNetwork:
 			return torch.device("mps")
 		except:
 			try:
-				return torch.device("cuda:0")
+				if torch.cuda.is_available():
+					return torch.device("cuda")
+				else:
+					return torch.device("cpu")
 			except:
 				warnings.warn("Impossible to find mps device. So the device is set to the cpu.")
 				return torch.device("cpu")
@@ -71,10 +73,10 @@ class NeuralNetwork:
 		if not hasattr(self, 'obj_vals'):
 			self.obj_vals = NeuralNetwork.initLossArray()#{'generator':np.array([]),'critic':np.array([])}
 
-		one = torch.tensor(1, dtype = torch.float)  #for backproping gradient
-		mone = one*-1                               #for backproping gradient
-		one = one.to(NeuralNetwork.device)
-		one = mone.to(NeuralNetwork.device)
+		#one = torch.tensor(1, dtype = torch.float)  #for backproping gradient
+		#mone = one*-1                               #for backproping gradient
+		#one = one.to(NeuralNetwork.device())
+		#one = mone.to(NeuralNetwork.device())
 
 		#Train the data. Read in the article how it is done and add the necessary parameters
 		for epoch in range(self.epoch,params['epoch']):
@@ -84,34 +86,37 @@ class NeuralNetwork:
 
 			tmpTrainLoss = []
 
-			#Allow no weight change of generator
-			for p in self.generator.parameters():
-				p.requires_grad = False
-			#allows weight update of critic
-			for p in self.critic.parameters():
-				p.requires_grad = True
+			##Allow no weight change of generator
+			#for p in self.generator.parameters():
+			#	p.requires_grad = False
+			##allows weight update of critic
+			#for p in self.critic.parameters():
+			#	p.requires_grad = True
 
 			self.print("Training the critic :")
+			self.critic.prepareForBackprop(self.generator)
 			generated = self.forward(data.x) 
 
 			for epochCritic in range(self.epochCritic,params['epoch_critic']):
 				self.epochCritic = epochCritic
 
-				#Train on real image
-				self.critic.zero_grad()
-				c_loss_real = self.forwardCritic(data.y)
-				c_loss_real.backward(mone)
-				#train on generated image
-				c_loss_fake = self.forwardCritic(generated)
-				c_loss_fake.backward(one)
+				##Train on real image
+				#self.critic.zero_grad()
+				#c_loss_real = self.forwardCritic(data.y)
+				#c_loss_real.backward(mone)
+				##train on generated image
+				#c_loss_fake = self.forwardCritic(generated)
+				#c_loss_fake.backward(one)
 
 				#train with gradient penalty
-				gradient_penalty = GP(data.y,data.x,self.forwardCritic,params['gp_weight'])
-				gradient_penalty.backward()
+				#gradient_penalty = GP.gradient_penalty(data.y,data.x,self.forwardCritic,params['gp_weight']) Damien : wrong input ?? according to comments, you should give the output of the generator as 2nd parameter
+				#gradient_penalty = GP.gradient_penalty(data.y,generated,self.forwardCritic,params['gp_weight'])
+				#gradient_penalty.backward()
 
-				train_val = c_loss_fake-c_loss_real + gradient_penalty
-				Wasserstein_D = c_loss_real - c_loss_fake
-				self.optimizerCritic.step()
+				#train_val = c_loss_fake-c_loss_real + gradient_penalty
+				#Wasserstein_D = c_loss_real - c_loss_fake
+				#self.optimizerCritic.step()
+				train_val = self.critic.backprop(data,generated,self.forwardCritic,self.optimizerCritic,params)
 
 				tmpTrainLoss.append(train_val)
 
@@ -124,24 +129,31 @@ class NeuralNetwork:
 			
 			self.print()
 			self.print("Training the generator")
-			#Allow no weight change of critic
-			for p in self.critic.parameters():
-				p.requires_grad = False
-			#allows weight update of generator
-			for p in self.generator.parameters():
-				p.requires_grad = True
-			self.generator.zero_grad()
+			##Allow no weight change of critic
+			#for p in self.critic.parameters():
+			#	p.requires_grad = False
+			##allows weight update of generator
+			#for p in self.generator.parameters():
+			#	p.requires_grad = True
+			#self.generator.zero_grad()
+			self.generator.prepareForBackprop(self.critic)
 
-			generated = self.forward(data.x)
-			train_val = self.forwardCritic(generated)
-			train_val.backward(mone)
-			self.optimizerGenerator.step()
 
-			tmpTrainLoss.append(train_val)
+			#self.generator.zero_grad()
+			#generated = self.forward(data.x)
+			#train_val = self.forwardCritic(generated)
+			#train_val.backward(mone)
+			#self.optimizerGenerator.step()
+			for epochGenerator in range(self.epochGenerator, params['epoch_generator']):
+				self.epochGenerator = epochGenerator
 
-			'''if (epochCritic+1) % params['display_epochs_generator'] == 0:
+				train_val = self.generator.backprop(data, self.forwardCritic, self.optimizerGenerator,self.critic.mone)
+
+				tmpTrainLoss.append(train_val)
+
+				if (epochCritic+1) % params['display_epochs_generator'] == 0:
 					self.print('Epoch [{}/{}]'.format(epochGenerator+1, params['epoch_generator'])+\
-                      '\tTraining Loss: {:.4f}'.format(train_val))''' 
+                      '\tTraining Loss: {:.4f}'.format(train_val))
 			
 			#Append loss
 			#self.print(len(self.obj_vals['generator']))

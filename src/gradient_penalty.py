@@ -25,8 +25,8 @@ def gradient_penalty(Y_label, Y_predicted, discriminator, gp_weight):
 
       
         gradients = gradients.view(batch_size, -1)
-        losses = []
-        losses.append(gradients.norm(2, dim=1).mean().data[0])
+        #losses = []
+        #losses.append(gradients.norm(2, dim=1).mean().data[0])#Damien : Error at this line. But as losses seems useless, I commented it so that I can make the code run
 
         gradients_norm = torch.sqrt(torch.sum(gradients ** 2, dim=1) + 1e-12)
 
