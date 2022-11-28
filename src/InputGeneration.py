@@ -5,6 +5,8 @@ Generate network input from raw halo and initial condition catalogs.
 
 # Imports
 import numpy as np
+import os
+from struct import iter_unpack
 import sys
 
 from AbacusCosmos import Halos
@@ -102,3 +104,20 @@ def particle_counts(boxid, sim_name="emulator_720box_planck", cell_length=4.):
     -------
     particle_counts - np.array, 3D array of particle counts saved as .npy file
     """
+
+    # Initialize variable with path to simulation files
+    path_root = ("/home/mj3chapm/scratch/abacus/{}_products/"
+                 "{}_{}_products".format(sim_name, sim_name, boxid))
+
+    ic_dir = ("{}/ic_{}_z0.1".format(path_root))
+    N_ic_files = len(os.listdir(ic_dir))
+    print("Number of IC Files: {}".format(N_ic_files))
+    # for i in range(N_ic_files):
+    for i in range(1):
+        print("Starting IC file {}, elapsed time".format(i),
+              dt.datetime.now() - start_time)
+        with open("{}/ic_{}".format(ic_dir, i), "rb") as file:
+            bdata = file.read()
+            particles = iter_unpack("3h6f", bdata)
+
+            
