@@ -4,9 +4,10 @@ Generate network input from raw halo and initial condition catalogs.
 
 
 # Imports
+import datetime as dt
 import numpy as np
 import os
-from struct import iter_unpack
+from struct import iter_unpack, unpack_from
 import sys
 
 from AbacusCosmos import Halos
@@ -90,7 +91,8 @@ def generate_halo_counts():
         halo_counts(boxid)
 
 
-def particle_counts(boxid, sim_name="emulator_720box_planck", cell_length=4.):
+def particle_counts(boxid, sim_name="emulator_720box_planck", cell_length=4.,
+                    PPD=1440, boxsize=720.):
     """
     Load initial conditions and generate counts on grid.
 
@@ -105,19 +107,63 @@ def particle_counts(boxid, sim_name="emulator_720box_planck", cell_length=4.):
     particle_counts - np.array, 3D array of particle counts saved as .npy file
     """
 
+    start_time = dt.datetime.now()
+
     # Initialize variable with path to simulation files
     path_root = ("/home/mj3chapm/scratch/abacus/{}_products/"
                  "{}_{}_products".format(sim_name, sim_name, boxid))
 
-    ic_dir = ("{}/ic_{}_z0.1".format(path_root))
+    particle_counts = np.zeros((int(boxsize / cell_length),
+                                int(boxsize / cell_length),
+                                int(boxsize / cell_length)))
+
+    ic_dir = ("{}/ic_z0.1".format(path_root))
     N_ic_files = len(os.listdir(ic_dir))
     print("Number of IC Files: {}".format(N_ic_files))
-    # for i in range(N_ic_files):
-    for i in range(1):
+    for i in range(N_ic_files):
         print("Starting IC file {}, elapsed time".format(i),
               dt.datetime.now() - start_time)
         with open("{}/ic_{}".format(ic_dir, i), "rb") as file:
             bdata = file.read()
-            particles = iter_unpack("3h6f", bdata)
 
-            
+            particles = iter_unpack("3h6f", bdata)
+            for part in particles:
+                pos = []
+                for j in range(3):
+                    x = (part[j] / PPD * boxsize + part[j+3]) % boxsize
+                    pos.append(int(x // cell_length))
+
+                particle_counts[pos[0], pos[1], pos[2]] += 1.
+
+        #     particle_data_first = unpack_from("3h6f", bdata, offset=0)
+        #     particle_data_last = unpack_from("3h6f", bdata, offset=-32)
+        #     N_particles = ((particle_data_last[0] -
+        #                     particle_data_first[0]) * 1440**2 +
+        #                    (particle_data_last[1] -
+        #                     particle_data_first[1]) * 1440 +
+        #                    (particle_data_last[2] -
+        #                     particle_data_first[2]) + 1)
+
+        # partcat = BinaryCatalog("{}/ic_{}".format(ic_dir, i),
+        #                         [('Index', ('h2', 3)),
+        #                          ('Position', ('f4', 3)),
+        #                          ('Velocity', ('f4', 3))], size=N_particles)
+        # partcat['Position'] = partcat['Position'] + (partcat['Index'] / PPD *
+        #                                              boxsize)
+        # mesh = partcat.to_mesh(Nmesh=int(boxsize / cell_length),
+        #                        resampler="cic")
+
+        # particle_counts = particle_counts + mesh.compute
+
+    # Save the output as a binary file with .npy formatting
+    # output_path = ("/home/mj3chapm/phys449/PHYS-449-midterm-project/input/"
+    #                "particle_counts/{}_{}_particle_"
+    #                "counts".format(sim_name, boxid))
+    output_path = ("/home/mj3chapm/phys449/output/data_products/"
+                   "particle_counts/{}_{}_particle_"
+                   "counts".format(sim_name, boxid))
+    np.save(output_path, particle_counts)
+
+
+boxid = sys.argv[1]
+particle_counts(boxid)
