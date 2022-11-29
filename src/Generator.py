@@ -84,17 +84,21 @@ class Generator(nn.Module):
     #   - inputs : input data for the generator
     #   - critic : the critic used 
     #   - optimizer : the optimizer we should use 
-    def backprop(self, inputs,gen_img, critic, optimizer):
+    def backprop(self, data, forwardCritic,optimizerGenerator,mone):
+        self.zero_grad()
+        generated = self.forward(data.x)
+        train_val = forwardCritic(generated)
+        train_val.backward(mone)
+        optimizerGenerator.step()
+
+        return train_val
+
+    def prepareForBackprop(self,critic):
+        #Allow no weight change of critic
         for p in critic.parameters():
-            p.requires_grad = False  #avoids calculation of critic
-        
-
-        loss = critic(gen_img).mean()    
-
-        optimizer.zero_grad()
-        loss.backward()
-        optimizer.step()
-
-        return loss
+            p.requires_grad = False
+            #allows weight update of generator
+        for p in self.parameters():
+            p.requires_grad = True
 
         

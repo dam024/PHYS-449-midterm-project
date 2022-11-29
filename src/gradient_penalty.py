@@ -1,3 +1,7 @@
+import torch
+from torch.autograd import Variable
+import torch.autograd
+
 def gradient_penalty(Y_label, Y_predicted, discriminator, gp_weight):
         """
         Y_label: The expected results of the NN
@@ -15,14 +19,14 @@ def gradient_penalty(Y_label, Y_predicted, discriminator, gp_weight):
 
         prob_interpolated = discriminator(interpolated)
         
-        gradients = torch_grad(outputs=prob_interpolated, inputs=interpolated,
+        gradients = torch.autograd.grad(outputs=prob_interpolated, inputs=interpolated,
                                grad_outputs=torch.ones(prob_interpolated.size()),
                                create_graph=True, retain_graph=True)[0]
 
       
         gradients = gradients.view(batch_size, -1)
-        losses = []
-        losses.append(gradients.norm(2, dim=1).mean().data[0])
+        #losses = []
+        #losses.append(gradients.norm(2, dim=1).mean().data[0])#Damien : Error at this line. But as losses seems useless, I commented it so that I can make the code run
 
         gradients_norm = torch.sqrt(torch.sum(gradients ** 2, dim=1) + 1e-12)
 

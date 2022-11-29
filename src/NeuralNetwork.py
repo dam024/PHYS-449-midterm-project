@@ -24,7 +24,10 @@ class NeuralNetwork:
 			return torch.device("mps")
 		except:
 			try:
-				return torch.device("cuba:0")
+				if torch.cuda.is_available():
+					return torch.device("cuda")
+				else:
+					return torch.device("cpu")
 			except:
 				warnings.warn("Impossible to find mps device. So the device is set to the cpu.")
 				return torch.device("cpu")
@@ -52,11 +55,9 @@ class NeuralNetwork:
 		return out
 
 	#Execute the critic and return the loss. It takes as arguments the generated halo counts and the real halo counts. 
-	def forwardCritic(self,generated, real):
-		realLoss=self.critic.forward(real).mean()
-		genLoss=self.critic.forward(generated).mean()
-		loss = genLoss-realLoss
-		return loss
+	def forwardCritic(self, input):
+		loss=self.critic.forward(input)
+		return loss.mean()
 
 	def trainNetwork(self,inputManager,params,modelSavingPath):
 		self.print("Start training...\n")
@@ -81,12 +82,14 @@ class NeuralNetwork:
 			tmpTrainLoss = []
 
 			self.print("Training the critic :")
-			generated = self.forward(data.x)
+			self.critic.prepareForBackprop(self.generator)
+			generated = self.forward(data.x) 
+
 			for epochCritic in range(self.epochCritic,params['epoch_critic']):
 				self.epochCritic = epochCritic
 
-				train_val = self.forwardCritic(generated, data.y)
-				self.critic.backprop(train_val,self.optimizerCritic)
+				train_val = self.critic.backprop(data,generated,self.forwardCritic,self.optimizerCritic,params)
+
 				tmpTrainLoss.append(train_val)
 
 				if (epochCritic+1) % params['display_epochs_critic'] == 0:
@@ -95,13 +98,16 @@ class NeuralNetwork:
 			#Append the new loss result
 			self.obj_vals['critic'].append(tmpTrainLoss)
 			tmpTrainLoss = []
+			
 			self.print()
 			self.print("Training the generator")
+
+			self.generator.prepareForBackprop(self.critic)
 			for epochGenerator in range(self.epochGenerator, params['epoch_generator']):
 				self.epochGenerator = epochGenerator
 
-				generated = self.forward(data.x)
-				train_val = self.generator.backprop(data.x, generated, self.critic, self.optimizerGenerator)
+				train_val = self.generator.backprop(data, self.forwardCritic, self.optimizerGenerator,self.critic.mone)
+
 				tmpTrainLoss.append(train_val)
 
 				if (epochCritic+1) % params['display_epochs_generator'] == 0:
