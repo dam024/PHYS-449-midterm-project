@@ -39,7 +39,7 @@ class InputManager():
 			self.dataInput = np.load(inpPath)
 			self.dataOutput = np.load(expectedPath)
 		else:
-			print("Impossible to find output data in folder "+inputPath+" : "+inpPath+" and "+expectedPath)
+			print("Impossible to find input data in folder "+inputPath+" : "+inpPath+" and "+expectedPath)
 			exit(1)
 
 		self.N = len(self.dataInput) #Size of the cube
