@@ -13,8 +13,8 @@ def testExport(args):
 	epsilon = 1e-5
 	param = FI.readFileJson('parameters/param_test.json')
 
-	inputManager = IM.InputManager('input_test',param['DataStructure'])
-	dataTest = inputManager.getBox(0,0,0)
+	inputManager = IM.InputManager('input',param['DataStructure'])
+	dataTest = inputManager.getBox(0, 0, 0, 0)
 
 	network1 = NN.NeuralNetwork(param['NN_structure'],param['training'], isTraining=True, modelSavingPath='model/model_test.pt',resumeTraining=False,lossPath=lossPath)
 
@@ -67,7 +67,7 @@ if __name__ == '__main__':
 		""",formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 	parser.add_argument('-p','--param',help='Path to json file containing the parameters for the program. See example at default location.',default='parameters/param_used.json')
 	parser.add_argument('-r','--result',help='Path to a folder where the results will be created. Each trials should have its own folder, so that no data get lost !',default="results")
-	parser.add_argument('-i','--input',help='Path to the input data -> need to be specified. The path focus on the folder where two files are stored : input.npy and expected.npy. The first one contains the data of the dark matter density field and the second one the data for the halo count density field.',default='input_test')
+	parser.add_argument('-i','--input',help='Path to the input data -> need to be specified. The path focus on the folder where two files are stored : input.npy and expected.npy. The first one contains the data of the dark matter density field and the second one the data for the halo count density field.',default='input')
 	parser.add_argument('-t',help='Indicate that we should train our model', action='store_true', dest='isTraining')
 	parser.add_argument('-m','--model',help='Path to a folder containing the model/where the model will be stored. If the flag -t is specified, the model will be trained and save the model when done in this file, even if a previous model was saved here. If the -t flag is not specified, it will just load the data from the model.',default="model/model.pt")
 	parser.add_argument('-rt','--resume_training',help="If this parameter is specified, training will be resumed at the latest saved state given by the file from the -m parameter. If the file do not exist, this parameter is ignored. Do not use this flag without the -t flag !", action='store_true',dest='resumeTraining')
