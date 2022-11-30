@@ -28,7 +28,7 @@ class Critic(nn.Module):
         self.one = torch.tensor(1, dtype = torch.float)  #for backproping gradient
         self.mone = self.one*-1  #for backproping gradient
         self.one = self.one.to(NN.NeuralNetwork.device())
-        self.one = self.mone.to(NN.NeuralNetwork.device())
+        self.mone = self.mone.to(NN.NeuralNetwork.device())
 
     def forward(self, x):
         out = self.main(x)

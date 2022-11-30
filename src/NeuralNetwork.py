@@ -73,6 +73,11 @@ class NeuralNetwork:
 		if not hasattr(self, 'obj_vals'):
 			self.obj_vals = NeuralNetwork.initLossArray()#{'generator':np.array([]),'critic':np.array([])}
 
+		#one = torch.tensor(1, dtype = torch.float)  #for backproping gradient
+		#mone = one*-1                               #for backproping gradient
+		#one = one.to(NeuralNetwork.device())
+		#one = mone.to(NeuralNetwork.device())
+
 		#Train the data. Read in the article how it is done and add the necessary parameters
 		for epoch in range(self.epoch,params['epoch']):
 			self.print("Training procedure [{}/{}]".format(epoch+1,params['epoch'])+" :")
@@ -81,13 +86,20 @@ class NeuralNetwork:
 
 			tmpTrainLoss = []
 
+			##Allow no weight change of generator
+			#for p in self.generator.parameters():
+			#	p.requires_grad = False
+			##allows weight update of critic
+			#for p in self.critic.parameters():
+			#	p.requires_grad = True
+
 			self.print("Training the critic :")
 			self.critic.prepareForBackprop(self.generator)
 			generated = self.forward(data.x) 
 
 			for epochCritic in range(self.epochCritic,params['epoch_critic']):
 				self.epochCritic = epochCritic
-
+				
 				train_val = self.critic.backprop(data,generated,self.forwardCritic,self.optimizerCritic,params)
 
 				tmpTrainLoss.append(train_val)
