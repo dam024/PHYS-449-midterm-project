@@ -61,6 +61,16 @@ def testExport(args):
 	
 	print("Test export success")
 
+#Test random stuff
+def testRandoms():
+
+	path = 'input/training'
+	exp = 12
+	got = IM.InputManager.getNumberOfFiles(path)
+	assert(exp == got),"Wrong number  of files in "+path+". Got "+str(got)+" expected "+str(exp)
+
+	print("Random tests success")
+
 if __name__ == '__main__':
 
 	parser  = argparse.ArgumentParser(description="""Neural network to paint halos from cosmic density fields of dark matter
@@ -75,6 +85,7 @@ if __name__ == '__main__':
 
 	args.resumeTraining = args.resumeTraining and args.isTraining #So that we are sure that there is no problem with the resumeTraining parameter in case we are not training. 
 
+	testRandoms()
 	testExport(args)
 	exit()
 	out1 = torch.load('results/train.txt')
