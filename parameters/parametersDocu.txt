@@ -1,0 +1,16 @@
+
+
+Data structure :
+	- ration_test_data : Indicate the ratio of test data we should extract from the whole set to use as test data. If we don't want any test data, just set this parameter as 0. This number should be contained between 0  and 1
+	- random_seed : seed for the random sequence that will give the index for the input data
+	- training_size :  size of the boxes used for training
+
+NN Structure:
+	- "num_convs":  Number of convolution layers after the inception blocks
+	- "num_layers": Number of inception layers 
+	- "initial_filter_num": size of the first filter applied
+
+
+training:
+	- "epcoh": Number of training iterations 
+	- "gp_weight": weight for gradient penalty, 10 works well
