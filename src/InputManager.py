@@ -31,7 +31,7 @@ class InputManager():
 		#Read input data
 		#data = FI.readFileNumbers(inputPath)
 
-		self.nTrainBox = int(len(os.listdir(inputPath)) / 2)
+		self.nTrainBox = int(len(os.listdir(inputPath)) / 2)#Damien : Error for calculation of this variable, need to be an integer !!! Check this
 
 		for i in range(self.nTrainBox):
 			# The data should be formatted in the following way here :
@@ -45,6 +45,7 @@ class InputManager():
 					firstInput = np.load(inpPath)
 					self.N = firstInput.shape[0]
 					self.dataInput = np.empty((self.nTrainBox, self.N, self.N, self.N))
+					self.dataOutput = np.empty((self.nTrainBox, self.N, self.N, self.N))#Damien : Add this line
 					self.dataInput[i, :, :, :] = firstInput
 					self.dataOutput[i, :, :, :] = np.load(expectedPath)
 
