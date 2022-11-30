@@ -99,26 +99,7 @@ class NeuralNetwork:
 
 			for epochCritic in range(self.epochCritic,params['epoch_critic']):
 				self.epochCritic = epochCritic
-
-<<<<<<< Updated upstream
-=======
-				##Train on real image
-				#self.critic.zero_grad()
-				#c_loss_real = self.forwardCritic(data.y)
-				#c_loss_real.backward(mone)
-				##train on generated image
-				#c_loss_fake = self.forwardCritic(generated)
-				#c_loss_fake.backward(one)
-
-				#train with gradient penalty
-				#gradient_penalty = GP.gradient_penalty(data.y,data.x,self.forwardCritic,params['gp_weight']) Damien : wrong input ?? according to comments, you should give the output of the generator as 2nd parameter
-				#gradient_penalty = GP.gradient_penalty(data.y,generated,self.forwardCritic,params['gp_weight'])
-				#gradient_penalty.backward()
-
-				#train_val = c_loss_fake-c_loss_real + gradient_penalty
-				#Wasserstein_D = c_loss_real - c_loss_fake
-				#self.optimizerCritic.step()
->>>>>>> Stashed changes
+				
 				train_val = self.critic.backprop(data,generated,self.forwardCritic,self.optimizerCritic,params)
 
 				tmpTrainLoss.append(train_val)
@@ -132,26 +113,8 @@ class NeuralNetwork:
 			
 			self.print()
 			self.print("Training the generator")
-<<<<<<< Updated upstream
 
 			self.generator.prepareForBackprop(self.critic)
-=======
-			##Allow no weight change of critic
-			#for p in self.critic.parameters():
-			#	p.requires_grad = False
-			##allows weight update of generator
-			#for p in self.generator.parameters():
-			#	p.requires_grad = True
-			#self.generator.zero_grad()
-			self.generator.prepareForBackprop(self.critic)
-
-
-			#self.generator.zero_grad()
-			#generated = self.forward(data.x)
-			#train_val = self.forwardCritic(generated)
-			#train_val.backward(mone)
-			#self.optimizerGenerator.step()
->>>>>>> Stashed changes
 			for epochGenerator in range(self.epochGenerator, params['epoch_generator']):
 				self.epochGenerator = epochGenerator
 

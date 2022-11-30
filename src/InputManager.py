@@ -31,9 +31,9 @@ class InputManager():
 		#Read input data
 		#data = FI.readFileNumbers(inputPath)
 
-		self.nTrainBox = len(os.listdir(inputPath)) / 2
+		self.nTrainBox = int(len(os.listdir(inputPath)) / 2)
 
-		for i in range(nTrainBox):
+		for i in range(self.nTrainBox):
 			# The data should be formatted in the following way here :
 			# Input is a 5 dimensional tensor : 1st dimension gives the input number,
 			# 2nd dimension just contain the rest, 3rd dimension is x values,
