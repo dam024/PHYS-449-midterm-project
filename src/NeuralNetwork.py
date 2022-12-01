@@ -21,6 +21,7 @@ class NeuralNetwork:
 	def device():
 		try:
 			l = b
+			#if torch.backends.mps.is_available():
 			return torch.device("mps")
 		except:
 			try:
@@ -39,6 +40,10 @@ class NeuralNetwork:
 		self.verbose = trainingParams['verbose']
 		self.generator = G.Generator(params['num_convs'],params['num_layers'],params['initial_filter_num'])
 		self.critic = C.Critic()
+
+
+		self.generator.to(NeuralNetwork.device())
+		self.critic.to(NeuralNetwork.device())
 
 		#Define the optimizer
 		self.optimizerGenerator = torch.optim.Adam(self.generator.parameters(),lr=trainingParams['learning_rate_generator'])
