@@ -12,7 +12,7 @@
 	"training":{
 		"epoch":2,
 		"epoch_generator":1,
-		"epoch_critic":20,
+		"epoch_critic":5,
 		"display_epochs":100,
 		"display_epochs_critic":1,
 		"display_epochs_generator":2,

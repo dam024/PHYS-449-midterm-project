@@ -71,11 +71,15 @@ def main(prefix):
 
 	if args.isTraining:
 		try:
-			lossValues = network.trainNetwork(inputManager,param['training'],args.model)
+			# empty loss files
+                        open(lossPath +  "_generator.txt", 'w').close()
+                        open(lossPath +  "_critic.txt", 'w').close()
+                        #calculate
+                        lossValues = network.trainNetwork(inputManager,param['training'],args.model)
 		except:
 			network.saveParameters(args.model,lossPath)
 			raise
-		plot_results(lossValues['generator'], lossValues['critic'], args.result)
+		#plot_results(lossValues['generator'], lossValues['critic'], args.result)
 		#print(lossValues)
 		#FI.writeNumPyArrayIntoFile(lossValues, lossPath)
 

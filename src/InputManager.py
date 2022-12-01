@@ -5,6 +5,7 @@ import random
 import numpy as np
 import warnings
 import os
+import NeuralNetwork as NN
 
 class Data:
 	def __init__(self):
@@ -31,7 +32,7 @@ class InputManager():
 		#Read input data
 		#data = FI.readFileNumbers(inputPath)
 
-		self.nTrainBox = InputManager.getNumberOfFiles(inputPath)
+		self.nTrainBox = int(len(os.listdir(inputPath)) / 2)#Damien : Error for calculation of this variable, need to be an integer !!! Check this
 
 		for i in range(self.nTrainBox):
 			# The data should be formatted in the following way here :
@@ -69,11 +70,8 @@ class InputManager():
 		#self.test_input = data[n:]
 		#self.train_output = 
 		#self.test_output = 
-
-	def getNumberOfFiles(inputPath):
-		return int(len(os.listdir(inputPath)) / 2)
 	#Return a random box from the main data
-	def getTrainData(self, device=torch.device("cpu")):
+	def getTrainData(self, device=NN.NeuralNetwork.device()):
 		n = random.randint(0, self.nTrainBox - 1)
 		xs = random.randint(0, self.N - self.size - 1)
 		ys = random.randint(0, self.N - self.size - 1)
@@ -92,7 +90,7 @@ class InputManager():
 		#exit()
 		return data
 	#Return a defined box from the origin point
-	def getBox(self, n, xs, ys, zs, device=torch.device("cpu")):
+	def getBox(self, n, xs, ys, zs, device=NN.NeuralNetwork.device()):
 
 		xe = xs + self.size
 		ye = ys + self.size

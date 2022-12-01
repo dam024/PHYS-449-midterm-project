@@ -1,7 +1,7 @@
 import torch
 from torch.autograd import Variable
 import torch.autograd
-
+import NeuralNetwork as NN
 def gradient_penalty(Y_label, Y_predicted, discriminator, gp_weight):
         """
         Y_label: The expected results of the NN
@@ -11,9 +11,8 @@ def gradient_penalty(Y_label, Y_predicted, discriminator, gp_weight):
         """
         batch_size = Y_label.size()[0]
 
-      
         alpha = torch.rand(batch_size, 1, 1, 1)
-        alpha = alpha.expand_as(Y_label)
+        alpha = alpha.expand_as(Y_label).to(NN.NeuralNetwork.device())
         interpolated = alpha * Y_label.data + (1 - alpha) * Y_predicted.data
         interpolated = Variable(interpolated, requires_grad=True)
 
