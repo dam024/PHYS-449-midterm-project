@@ -19,9 +19,10 @@ def testExport(args):
 	network1 = NN.NeuralNetwork(param['NN_structure'],param['training'], isTraining=True, modelSavingPath='model/model_test.pt',resumeTraining=False,lossPath=lossPath)
 
 	#We train the network
-	lossValues1 = network1.trainNetwork(inputManager,param['training'],'model/model_test.pt')
+	network1.trainNetwork(inputManager,param['training'],'model/model_test.pt')
+	lossValues1 = network1.resumeLoss(lossPath)
 
-	if not os.path.exists('results/loss.pt'):
+	if not os.path.exists('results/loss_generator.txt') or not os.path.exists('results/loss_critic.txt'):
 		assert(False),"Loss has not been saved"
 	if not os.path.exists('model/model_test.pt'):
 		assert(False),"Model has not been saved"
@@ -30,7 +31,8 @@ def testExport(args):
 	param['training']['epoch'] += 1
 	network2 = NN.NeuralNetwork(param['NN_structure'], param['training'], isTraining=True, modelSavingPath='model/model_test.pt', resumeTraining=True, lossPath=lossPath)
 	#Train the new network
-	lossValues2 = network2.trainNetwork(inputManager, param['training'], modelSavingPath='model/model_test.pt')
+	network2.trainNetwork(inputManager, param['training'], modelSavingPath='model/model_test.pt')
+	lossValues2 = network2.resumeLoss(lossPath)
 
 	#Test of the loss
 	assert(len(lossValues1['critic']) == len(lossValues2['critic'])-1),"Unexpected size for the resumed network. Got "+str(len(lossValues2['critic']))+" but expected "+str(len(lossValues1['critic'])+1)
@@ -43,9 +45,10 @@ def testExport(args):
 	### Test without resuming the training
 	network3 = NN.NeuralNetwork(param['NN_structure'], param['training'], isTraining=True, modelSavingPath='model/model_test.pt', resumeTraining=False, lossPath=lossPath)
 	#Train the new network
-	lossValues3 = network3.trainNetwork(inputManager, param['training'], modelSavingPath='model/model_test.pt')
+	network3.trainNetwork(inputManager, param['training'], modelSavingPath='model/model_test.pt')
+	lossValues3 = network3.resumeLoss(lossPath)
 	#Check that the two trainings are different
-	assert(lossValues3 != lossValues2),"Two training have the exact same loss"
+	assert(lossValues3 != lossValues2),"Two different training have the exact same loss"
 	
 	output3 = network3.forward(dataTest.x)
 	loss3 = network3.forwardCritic(output3)#, dataTest.y)
@@ -53,10 +56,12 @@ def testExport(args):
 	print("Training without resuming success")
 	## Check that the deployment procedure is working
 	network4 = NN.NeuralNetwork(param['NN_structure'], param['training'], isTraining=False, modelSavingPath='model/model_test.pt', resumeTraining=False, lossPath=lossPath)
+	lossValues4 = network4.resumeLoss(lossPath)
 	output4 = network4.forward(dataTest.x)
 	loss4 = network4.forwardCritic(output4)#, dataTest.y)
 	assert(((output3 - output4) > epsilon).int().sum().item() == 0),"Unexcepted output for the generator. We expected they would be the same, but they aren't. Got : network4 "+str(output4)+" network3 "+str(output3)
 	assert(((loss3 - loss4) > epsilon).int().sum().item() == 0),"Unexcepted output for the critic. We expected they would be the same, but they aren't. Got : network4 "+str(loss4)+" network3 "+str(loss3)
+	assert(lossValues4 == lossValues3),"Unexcepted loss retrieved during deployment. We expected to have the same loss than previously. Got : network4 : "+str(lossValues4)+" network3 "+str(lossValues3)
 	print("Deployment success ")
 	
 	print("Test export success")
@@ -74,7 +79,7 @@ if __name__ == '__main__':
 	args = parser.parse_args()
 
 	args.resumeTraining = args.resumeTraining and args.isTraining #So that we are sure that there is no problem with the resumeTraining parameter in case we are not training. 
-
+	print("Run on device : ",NN.NeuralNetwork.device())
 	testExport(args)
 	exit()
 	out1 = torch.load('results/train.txt')
