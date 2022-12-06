@@ -88,6 +88,7 @@ class Generator(nn.Module):
         self.zero_grad()
         generated = self.forward(data.x)
         train_val = forwardCritic(generated)
+        train_val = train_val.mean()
         train_val.backward(mone)
         optimizerGenerator.step()
 
