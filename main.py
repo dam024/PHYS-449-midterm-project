@@ -68,13 +68,14 @@ def main(prefix):
 	#	lossValues = network.resumeLoss(lossPath+'.pt')
 	#	print("Loss resumed : ",lossValues)
 	#	print(type(lossValues))
+
 	if args.isTraining:
 		try:
+			if not os.path.exists(args.result):
+				os.makedirs(args.result)
 			# empty loss files
-                        #open(lossPath +  "_generator.txt", 'w').close()
-                        #open(lossPath +  "_critic.txt", 'w').close()
-                        #FI.writeArrayIntoFile([], lossPath+"_generator.txt",mode='w')
-                        #FI.writeArrayIntoFile([], lossPath+"_critic.txt",mode='w')
+                        open(lossPath +  "_generator.txt", 'w').close()
+                        open(lossPath +  "_critic.txt", 'w').close()
                         #calculate
                         lossValues = network.trainNetwork(inputManager,param['training'],args.model)
 		except:
