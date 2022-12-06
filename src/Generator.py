@@ -99,7 +99,7 @@ class Generator(nn.Module):
         for p in critic.parameters():
             p.requires_grad = False
             #allows weight update of generator
-        #for p in self.parameters():
-            #p.requires_grad = True
+        for p in self.parameters():
+            p.requires_grad = True
 
         

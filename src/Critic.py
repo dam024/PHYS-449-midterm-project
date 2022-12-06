@@ -63,8 +63,8 @@ class Critic(nn.Module):
 
     def prepareForBackprop(self, generator):
         # Allow no weight change of generator
-        #for p in generator.parameters():
-            #p.requires_grad = False
+        for p in generator.parameters():
+            p.requires_grad = False
         # allows weight update of critic
         for p in self.parameters():
             p.requires_grad = True
