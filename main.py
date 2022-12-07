@@ -46,7 +46,7 @@ def main(prefix):
     parser.add_argument('-p', '--param', help='Path to json file containing the parameters for the program. See example at default location.',
                         default=prefix+'parameters/param_used.json')
     parser.add_argument(
-        '-r', '--result', help='Path to a folder where the results will be created. Each trials should have its own folder, so that no data get lost !', default=prefix+"results")
+        '-r', '--result', help='Path to a folder where the results will be created. Each trials should have its own folder, so that no data get lost !', default=prefix+"result")
     parser.add_argument('-i', '--input', help='Path to the input data -> need to be specified. The path focus on the folder where two files are stored : input.npy and expected.npy. The first one contains the data of the dark matter density field and the second one the data for the halo count density field.', default=prefix+'input/training')
     parser.add_argument('-t', help='Indicate that we should train our model',
                         action='store_true', dest='isTraining')
@@ -82,8 +82,8 @@ def main(prefix):
             if not os.path.exists(args.result):
                 os.makedirs(args.result)
             # empty loss files
-            open(lossPath + "_generator.txt", 'w').close()
-            open(lossPath + "_critic.txt", 'w').close()
+            #open(lossPath + "_generator.txt", 'w').close()
+            #open(lossPath + "_critic.txt", 'w').close()
             # calculate
             lossValues = network.trainNetwork(
                 inputManager, param['training'], args.model)
