@@ -1,0 +1,25 @@
+{
+	"DataStructure":{
+		"ratio_test_data":0.1,
+		"random_seed":10,
+		"training_size":27
+	},
+	"NN_structure": {
+		"num_convs":2,
+		"num_layers":4,
+		"initial_filter_num":1
+	},
+	"training":{
+		"epoch":TOT_EPOCH,
+		"epoch_generator":2,
+		"epoch_critic":10,
+		"display_epochs":10,
+		"display_epochs_critic":1,
+		"display_epochs_generator":2,
+		"learning_rate_generator":GLR,
+		"learning_rate_critic":CLR,
+		"verbose":0,
+		"gp_weight":10
+	}
+	
+}
