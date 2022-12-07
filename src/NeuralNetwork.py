@@ -39,6 +39,7 @@ class NeuralNetwork:
     def __init__(self, params, trainingParams, isTraining, modelSavingPath, resumeTraining, lossPath):
         super(NeuralNetwork, self).__init__()
         self.lossPath = lossPath
+        self.obj_vals = NeuralNetwork.initLossArray()
         self.verbose = trainingParams['verbose']
         self.generator = G.Generator(
             params['num_convs'], params['num_layers'], params['initial_filter_num'])
@@ -76,11 +77,6 @@ class NeuralNetwork:
             self.epochCritic = 0
         if not hasattr(self, 'epochGenerator'):
             self.epochGenerator = 0
-
-        # Save loss
-        if not hasattr(self, 'obj_vals'):
-            # {'generator':np.array([]),'critic':np.array([])}
-            self.obj_vals = NeuralNetwork.initLossArray()
 
         # one = torch.tensor(1, dtype = torch.float)  #for backproping gradient
         # mone = one*-1                               #for backproping gradient
