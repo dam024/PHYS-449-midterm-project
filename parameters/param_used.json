@@ -2,7 +2,7 @@
 	"DataStructure":{
 		"ratio_test_data":0.1,
 		"random_seed":10,
-		"training_size":27
+		"training_size":58
 	},
 	"NN_structure": {
 		"num_convs":2,
@@ -10,14 +10,14 @@
 		"initial_filter_num":1
 	},
 	"training":{
-		"epoch":10,
-		"epoch_generator":2,
-		"epoch_critic":10,
+		"epoch":1000,
+		"epoch_generator":3,
+		"epoch_critic":15,
 		"display_epochs":10,
 		"display_epochs_critic":1,
-		"display_epochs_generator":2,
-		"learning_rate_generator":1e-2,
-		"learning_rate_critic":1e-2,
+		"display_epochs_generator":1,
+		"learning_rate_generator":1e-3,
+		"learning_rate_critic":1e-5,
 		"verbose":1,
 		"gp_weight":10
 	}

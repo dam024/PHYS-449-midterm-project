@@ -8,6 +8,13 @@ import FileInteraction as FI
 import InputManager as IM
 import NeuralNetwork as NN
 
+def checkStateDic(dic1, dic2):
+	keys = dic1.keys()
+	s = 0
+	for key in keys:
+		s += (dic1[key] != dic2[key]).int().sum().item()
+	return s == 0
+
 def testExport(args):
 	lossPath = 'results/loss'
 	epsilon = 1e-5
@@ -19,14 +26,21 @@ def testExport(args):
 	network1 = NN.NeuralNetwork(param['NN_structure'],param['training'], isTraining=True, modelSavingPath='model/model_test.pt',resumeTraining=False,lossPath=lossPath)
 
 	#We train the network
+	gen_state_1a = network1.generator.state_dict()
+	cri_state_1a = network1.critic.state_dict()
 	network1.trainNetwork(inputManager,param['training'],'model/model_test.pt')
 	lossValues1 = network1.resumeLoss(lossPath)
+	gen_state_1b = network1.generator.state_dict()
+	cri_state_1b = network1.critic.state_dict()
 
 	if not os.path.exists('results/loss_generator.txt') or not os.path.exists('results/loss_critic.txt'):
 		assert(False),"Loss has not been saved"
 	if not os.path.exists('model/model_test.pt'):
 		assert(False),"Model has not been saved"
 	print("Creation of exported model success")
+	#check that the generator and the critic are learning
+	assert(checkStateDic(cri_state_1a,cri_state_1b)),"Critic is not learning"
+	assert(checkStateDic(gen_state_1a, gen_state_1b)),"Generator is not learning"
 	### The netwrok must be saved now. So we simulate a resume of training
 	param['training']['epoch'] += 1
 	network2 = NN.NeuralNetwork(param['NN_structure'], param['training'], isTraining=True, modelSavingPath='model/model_test.pt', resumeTraining=True, lossPath=lossPath)

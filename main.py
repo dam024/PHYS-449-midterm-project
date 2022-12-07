@@ -106,7 +106,6 @@ def main(prefix):
         network.saveOutput(output1, args.result+'/'+'train.txt')
     else:
         network.saveOutput(output1, args.result+'/'+'test.txt')
-
     #warnings.warn("Implement the analysis of the results after here")
 
 
