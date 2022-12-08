@@ -44,7 +44,7 @@ class Critic(nn.Module):
         # Train on real image
         self.zero_grad()
         c_loss_real = forwardCritic(data.y)
-        C_loss_real = c_loss_real.mean()
+        c_loss_real = c_loss_real.mean()
         c_loss_real.backward(self.mone)
         # train on generated image
         c_loss_fake = forwardCritic(generated)
