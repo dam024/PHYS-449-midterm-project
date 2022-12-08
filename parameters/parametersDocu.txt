@@ -1,9 +1,9 @@
 
 
 Data structure :
-	- ration_test_data : Indicate the ratio of test data we should extract from the whole set to use as test data. If we don't want any test data, just set this parameter as 0. This number should be contained between 0  and 1
+	- ration_test_data : If this parameter appear, it was forgotten. This parameter is not used anymore. 
 	- random_seed : seed for the random sequence that will give the index for the input data
-	- training_size :  size of the boxes used for training
+	- training_size : size of the boxes used for training
 
 NN Structure:
 	- "num_convs":  Number of convolution layers after the inception blocks
@@ -12,5 +12,12 @@ NN Structure:
 
 
 training:
-	- "epcoh": Number of training iterations 
+	- "epcoh": Number of training iterations (number of training procedure)
+	- "epoch_generator": Number of training iterations for the generator in a training procedure, i.e. for each epoch. 
+	- "epoch_critic": Number of training iterations for the critic in a training procedure, i.e. for each epoch. 
+	- "display_epochs" : In verbose mode, indicate every each iteration we have to print the progress of the training
+	- "display_epochs_critic": In verbose mode, indicate every each iteration we have to print the progress of the critic
+	- "display_epochs_generator": In verbose mode, indicate every each iteration we have to print the progress of the critic
+	- "learning_rate_generator": Learning rate for the training of the generator
+	- "learning_rate_critic": Learning rate for the training of the critic
 	- "gp_weight": weight for gradient penalty, 10 works well

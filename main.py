@@ -106,6 +106,8 @@ def main(prefix):
         network.saveOutput(output1, args.result+'/'+'train.txt')
     else:
         network.saveOutput(output1, args.result+'/'+'test.txt')
+    print(output1)
+    FI.writeArrayIntoFile(output1.squeeze().cpu().detach().numpy().tolist(), args.result+'/'+'test2.txt')
     #warnings.warn("Implement the analysis of the results after here")
 
 

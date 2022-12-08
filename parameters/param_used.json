@@ -1,6 +1,5 @@
 {
 	"DataStructure":{
-		"ratio_test_data":0.1,
 		"random_seed":10,
 		"training_size":58
 	},

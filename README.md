@@ -14,7 +14,7 @@ A lot of parameters are described from the help page :
 python main.py -h
 ```
 
-A basic command for running is to use the -t flag. To resume the training at it's last state, use the flag -rt. The flag -rt may be used only if an error occured during the execution of the program or if the model needs more training, as it will restore the exact same state the model was when it was saved. 
+A basic command for running is to use the -t flag. To resume the training at its last state, use the flag -rt. The flag -rt may be used only if an error occured during the execution of the program or if the model needs more training, as it will restore the exact same state the model was when it was saved. 
 ```sh
 python main.py -t [-rt]
 ```
@@ -23,18 +23,14 @@ It may be interesting to save the model at each tries, as it is really long to t
 python main.py -t -m model/model.pt
 ```
 
-## Other infos
+## Training procedure
+The training procedure of the neural network is designed as follow : 
+The critic is trained first a certain amount of time using one single generated output from the generator and the associated target halo field. 
+Then, the generator is trained a certain amount of time too on different dark matter density fields. As the critic is supposed to indicate to the generator how its generated halo fields are "different" from the target one, the critic is in general trained 2-3 times more than the generator. For more information, refer to the parameter files in parameters/. 
+This training procedure is then repeated a large number of time. 
 
-input :  input data
-model : saved models
-parameters : hyperparameters + training parameters
-results : output graphs/output images/output data/etc
-src : all other Python files
-
-compile : it is for my (Damien) setup, because I am lazzy to change 20 times the setup of my code editor
-
-
-I  created some branches for better management of the work. Please commit on main only working code.  
+## Parameters documentation
+A description of each parameter used in the parameter file (json file) is provided in parameters/parametersDocu.txt
 
 # Input
 
