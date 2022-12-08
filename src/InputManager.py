@@ -39,23 +39,31 @@ class InputManager():
 			# Input is a 5 dimensional tensor : 1st dimension gives the input number,
 			# 2nd dimension just contain the rest, 3rd dimension is x values,
 			# 4th dimension is y values and 5th dimension is z values.
-			inpPath = '{}/emulator_720box_planck_00-{}_logmass-12-14_halo_counts.npy'.format(inputPath, i)
-			expectedPath = '{}/emulator_720box_planck_00-{}_particle_counts.npy'.format(inputPath, i)
-			if os.path.exists(inpPath) and os.path.exists(expectedPath):
+			inpPathTraining = '{}/training/emulator_720box_planck_00-{}_particle_counts.npy'.format(inputPath, i)
+			expectedPathTraining = '{}/training/emulator_720box_planck_00-{}_logmass-12-14_halo_counts.npy'.format(inputPath, i)
+			if os.path.exists(inpPathTraining) and os.path.exists(expectedPathTraining):
 				if i == 0:
-					firstInput = np.load(inpPath)
+					firstInput = np.load(inpPathTraining)
 					self.N = firstInput.shape[0]
 					self.dataInput = np.empty((self.nTrainBox, self.N, self.N, self.N))
 					self.dataOutput = np.empty((self.nTrainBox, self.N, self.N, self.N))#Damien : Add this line
 					self.dataInput[i, :, :, :] = firstInput
-					self.dataOutput[i, :, :, :] = np.load(expectedPath)
+					self.dataOutput[i, :, :, :] = np.load(expectedPathTraining)
 
 				else:
-					self.dataInput[i, :, :, :] = np.load(inpPath)
-					self.dataOutput[i, :, :, :] = np.load(expectedPath)
+					self.dataInput[i, :, :, :] = np.load(inpPathTraining)
+					self.dataOutput[i, :, :, :] = np.load(expectedPathTraining)
 			else:
-				print("Impossible to find output data in folder {} : {} and {}".format(inputPath, inpPath, expectedPath))
+				print("Impossible to find output data in folder {} : {} and {}".format(inputPath, inpPathTraining, expectedPathTraining))
 				exit(1)
+
+		inpPathTest = '{}/test/emulator_720box_planck_00-15_particle_counts.npy'.format(inputPath)
+		if os.path.exists(inpPathTest):
+			self.testInput = np.load(inpPathTest)
+
+		else:
+			print("Impossible to find test data in folder {}/{}".format(inputPath, inpPathTest))
+			exit(1)
 
 		# self.N = len(self.dataInput) #Size of the cube
 		
@@ -85,10 +93,24 @@ class InputManager():
 		#print(self.dataInput[xs:xe].shape, self.dataInput[xs:xe,ys:ye].shape, self.dataInput[xs:xe,ys:ye,zs:ze].shape)
 		data = Data()
 		data.x = torch.from_numpy(np.array([[self.dataInput[n, xs:xe, ys:ye, zs:ze]]], dtype=np.float32)).to(device)
-		data.y = torch.from_numpy(np.array([[self.dataOutput[n, xs:(xe-8), ys:(ye-8), zs:(ze-8)]]], dtype=np.float32)).to(device)
+		data.y = torch.from_numpy(np.array([[self.dataOutput[n, (xs + 4):(xe - 4), (ys + 4):(ye - 4), (zs + 4):(ze - 4)]]], dtype=np.float32)).to(device)
 		#print(data.x.size(), data.y.size(), self.dataInput.shape, self.dataOutput.shape)
 		#exit()
 		return data
+
+	def getTestData(self, xs, ys, zs, device=NN.NeuralNetwork.device()):
+		"""Get the test data used for generating the results."""
+		# Set the limits of the generator input box
+		xe = xs + self.size
+		ye = ys + self.size
+		ze = zs + self.size
+
+		# Initialize torch container for the data
+		data = Data()
+		data.x = torch.from_numpy(np.array([[self.testInput[xs:xe, ys:ye, zs:ze]]], dtype=np.float32)).to(device)
+
+		return data
+
 	#Return a defined box from the origin point
 	def getBox(self, n, xs, ys, zs, device=NN.NeuralNetwork.device()):
 
@@ -98,7 +120,7 @@ class InputManager():
 
 		data = Data()
 		data.x = torch.from_numpy(np.array([[self.dataInput[n, xs:xe, ys:ye, zs:ze]]], dtype=np.float32)).to(device)
-		data.y = torch.from_numpy(np.array([[self.dataOutput[n, xs:(xe-8), ys:(ye-8), zs:(ze-8)]]], dtype=np.float32)).to(device)
+		data.y = torch.from_numpy(np.array([[self.dataOutput[n, (xs + 4):(xe - 4), (ys + 4):(ye - 4), (zs + 4):(ze - 4)]]], dtype=np.float32)).to(device)
 		#print(data.x.size(),data.y.size())
 		#exit()
 		return data
