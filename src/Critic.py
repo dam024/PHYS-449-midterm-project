@@ -53,7 +53,7 @@ class Critic(nn.Module):
 
         # train with gradient penalty
         # gradient_penalty = GP.gradient_penalty(data.y,data.x,self.forwardCritic,params['gp_weight']) Damien : wrong input ?? according to comments, you should give the output of the generator as 2nd parameter
-        gradient_penalty = GP.gradient_penalty(data.y, generated, forwardCritic, params['gp_weight'])
+        gradient_penalty = GP.gradient_penalty(data.y, generated, self.forward, params['gp_weight'])
         gradient_penalty.backward()
 
         train_val = c_loss_fake-c_loss_real + gradient_penalty

@@ -10,7 +10,7 @@ import argparse
 import os
 import time
 
-def plot_results(obj_vals, res_path,dtype,length):
+def plot_results(obj_vals, res_path,dtype,length,real_vals=[]):
 
     def flattern(array):
         ret = []
@@ -20,9 +20,13 @@ def plot_results(obj_vals, res_path,dtype,length):
         return ret
 
     obj_valsFlat = flattern(obj_vals)
+    real_valsFlat = flattern(real_vals)
     # Plot saved in results folder
     plt.plot(range(int(len(obj_valsFlat))), obj_valsFlat,
              label=dtype+" : ", color="blue")
+    plt.plot(range(int(len(real_valsFlat))), real_valsFlat,
+             label=dtype+" : ", color="red")
+
     plt.legend()
 
     if not os.path.exists(res_path):
@@ -60,5 +64,5 @@ if __name__ == '__main__':
 		if args.c:
 			plot_results(lossVal['critic'], args.input, 'Critic',param['training']['epoch_critic'])
 		if args.g:
-			plot_results(lossVal['generator'], args.input, 'Generator',param['training']['epoch_generator'])
-		time.sleep(100)
+			plot_results(lossVal['generator'], args.input, 'Generator',param['training']['epoch_generator'],real_vals=lossVal['real'])
+		time.sleep(60)

@@ -86,6 +86,7 @@ class NeuralNetwork:
             data = inputManager.getTrainData(NeuralNetwork.device())
 
             tmpTrainLoss = []
+            tmpRealLoss = []
 
 
             self.print("Training the critic :")
@@ -116,17 +117,21 @@ class NeuralNetwork:
 
                 train_val = self.generator.backprop(
                     data, self.forwardCritic, self.optimizerGenerator, self.critic.mone)
+                test_val = self.forwardCritic(data.y)
 
                 tmpTrainLoss.append(train_val.tolist())
+                tmpRealLoss.append(test_val.tolist())
 
                 if (epochCritic+1) % params['display_epochs_generator'] == 0:
                     self.print('Epoch [{}/{}]'.format(epochGenerator+1, params['epoch_generator']) +
-                               '\tTraining Loss: {:.4f}'.format(train_val))
+                               '\tTraining Loss: {:.4f}\tReal image loss: {:.4f}'.format(train_val,test_val))
 
             # Append loss
             # self.print(len(self.obj_vals['generator']))
             self.obj_vals['generator'] = tmpTrainLoss
             FI.writeArrayIntoFile([self.obj_vals['generator']], self.lossPath +  "_generator.txt",mode='a')
+            self.obj_vals['real']  = tmpRealLoss
+            FI.writeArrayIntoFile([self.obj_vals['real']], self.lossPath +  "_real.txt",mode='a')
             # self.print(len(self.obj_vals['generator']))
             self.print()
             self.print()
@@ -228,10 +233,11 @@ class NeuralNetwork:
         obj_vals = NeuralNetwork.initLossArray()
         obj_vals['generator'] = FI.readFileNumbers(lossPath+'_generator.txt')
         obj_vals['critic'] = FI.readFileNumbers(lossPath+'_critic.txt')
+        obj_vals['real'] = FI.readFileNumbers(lossPath+'_real.txt')
         return  obj_vals
 
     def initLossArray():
-        return {'generator': [], 'critic': []}
+        return {'generator': [], 'critic': [],'real':[]}
 
     def print(self, *args):
         if self.verbose == 1:
