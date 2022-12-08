@@ -99,7 +99,7 @@ def main(prefix):
     # by the size of the generator output to determine how many predictions are required to span the box.
     nGenBox = int(np.floor((inputManager.N - 8) / (inputManager.size - 8)))
     # Initialize numpy array for output
-    output = np.empty((nGenBox * (inputManager.size * 8), nGenBox * (inputManager.size * 8), nGenBox * (inputManager.size * 8)))
+    output = np.empty((nGenBox * (inputManager.size - 8), nGenBox * (inputManager.size - 8), nGenBox * (inputManager.size - 8)))
     # Store a copy of the testInput to verify loading is done correctly
     inputCopy = np.empty((inputManager.N, inputManager.N, inputManager.N))
     # Loop through the box, making predictions from the test data
@@ -126,7 +126,6 @@ def main(prefix):
         np.save(args.result+'/'+'test_inputCopy', inputCopy)
         np.save(args.result+'/'+'test_output', output)
     print(output)
-    FI.writeArrayIntoFile(output1.squeeze().cpu().detach().numpy().tolist(), args.result+'/'+'test2.txt')
 
 
 if __name__ == '__main__':
