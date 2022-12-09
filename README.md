@@ -45,4 +45,4 @@ Contains the halo counts from select emulator boxes of the AbacusCosmos simulati
 Box 00 has the default Planck cosmology and should be used for training, while Box 03 and 04 have higher and lower $\Omega_m$ respectively, and should be used for testing on a variable cosmology.
 
 # Results
-Figures showing our training loss for both the critic and generator are shown in "WGAN Halo Mapping.ipynb". Also shown is the power spectrum of our reference halo distributions as well as our predicted halo distribution. For more information on power spectra see: https://en.wikipedia.org/wiki/Matter_power_spectrum.
+Figures showing our training loss for both the critic and generator are shown in ["WGAN Halo Mapping.ipynb"](https://github.com/dam024/PHYS-449-midterm-project/blob/main/WGAN%20Halo%20Mapping.ipynb). Also shown is the power spectrum of our reference halo distributions as well as our predicted halo distribution. For more information on power spectra see the [wiki page](https://en.wikipedia.org/wiki/Matter_power_spectrum) and references therein.
