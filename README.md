@@ -43,3 +43,6 @@ A description of each parameter used in the parameter file (json file) is provid
 Contains the halo counts from select emulator boxes of the AbacusCosmos simulation suite (https://lgarrison.github.io/AbacusCosmos/simulations/). AbacusCosmos is used to replace the VELMASS simulations because they are publicly available and have code for generating the 2LPT density field. The emulator boxes are chosen since they have boxes that vary along $\Omega_m$ (and related parameters) specifically, allowing reproduction of the varying cosmology test of Ramanah et al. 2020. The z=0.3 slice is used since it is the lowest redshift slice, while Ramanah et al. 2020 used z=0.
 
 Box 00 has the default Planck cosmology and should be used for training, while Box 03 and 04 have higher and lower $\Omega_m$ respectively, and should be used for testing on a variable cosmology.
+
+# Results
+Figures showing our training loss for both the critic and generator are shown in [WGAN Halo Mapping.ipynb](https://github.com/dam024/PHYS-449-midterm-project/blob/main/WGAN%20Halo%20Mapping.ipynb). Also shown is the power spectrum of our reference halo distributions as well as our predicted halo distribution. For more information on power spectra see the [wiki page](https://en.wikipedia.org/wiki/Matter_power_spectrum) and references therein.
