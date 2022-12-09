@@ -73,34 +73,22 @@ def main(prefix):
 
     # We resume the loss if necessary, like if we are in deployement mode or we resumeTraining
     lossValues = NN.NeuralNetwork.initLossArray()
-    # if not args.isTraining or args.resumeTraining:
-    #   lossValues = network.resumeLoss(lossPath+'.pt')
-    #   print("Loss resumed : ",lossValues)
-    #   print(type(lossValues))
 
     if args.isTraining:
         try:
             if not os.path.exists(args.result):
                 os.makedirs(args.result)
-            # empty loss files
-            # open(lossPath + "_generator.txt", 'w').close()
-            # open(lossPath + "_critic.txt", 'w').close()
-            # calculate
             lossValues = network.trainNetwork(
                 inputManager, param['training'], args.model)
         except:
             network.saveParameters(args.model, lossPath)
             raise
-        # plot_results(lossValues['generator'], lossValues['critic'], args.result)
-        # print(lossValues)
-        # FI.writeNumPyArrayIntoFile(lossValues, lossPath)
 
     # Divide the size of a data box (minus edge padding from generator footprint reduction)
     # by the size of the generator output to determine how many predictions are required to span the box.
     nGenBox = int(np.floor((inputManager.N - 8) / (inputManager.size - 8)))
     # Initialize numpy array for output
     output = np.empty((nGenBox * (inputManager.size - 8), nGenBox * (inputManager.size - 8), nGenBox * (inputManager.size - 8)))
-    # Store a copy of the testInput to verify loading is done correctly
     inputCopy = np.empty((inputManager.N, inputManager.N, inputManager.N))
     # Loop through the box, making predictions from the test data
     for i in range(nGenBox):
@@ -110,22 +98,21 @@ def main(prefix):
             for k in range(nGenBox):
                 zs = k * (inputManager.size - 8)
 
-                # Get a subset of the test data
                 testData = inputManager.getTestData(xs, ys, zs)
-                # Store a copy to the input array
-                inputCopy[xs:xs+inputManager.size, ys:ys+inputManager.size, ys:ys+inputManager.size] = testData.x[0, 0, :, :, :].detach().numpy()
-                # Calculate the output from the generator
+                inputCopy[xs:xs+inputManager.size, ys:ys+inputManager.size, ys:ys+inputManager.size] = testData.x[0, 0, :, :, :].cpu().detach().numpy()
                 generatorOutput = network.forward(testData.x)
-                output[i*(inputManager.size - 8):(i+1)*(inputManager.size - 8), j*(inputManager.size - 8):(j+1)*(inputManager.size - 8), k*(inputManager.size - 8):(k+1)*(inputManager.size - 8)] = generatorOutput[0, 0, :, :, :].detach().numpy()
+
+                output[i*(inputManager.size - 8):(i+1)*(inputManager.size - 8), j*(inputManager.size - 8):(j+1)*(inputManager.size - 8), k*(inputManager.size - 8):(k+1)*(inputManager.size - 8)] = generatorOutput[0, 0, :, :, :].cpu().detach().numpy()
 
     # Saving the output
+    
     if args.isTraining:
-        np.save(args.result+'/'+'train_inputCopy', inputCopy)
-        np.save(args.result+'/'+'train_output', output)
+        np.save(args.result+'/'+'train_inputCopy.npy', inputCopy)
+        np.save(args.result+'/'+'train_output.npy', output)
+        
     else:
-        np.save(args.result+'/'+'test_inputCopy', inputCopy)
-        np.save(args.result+'/'+'test_output', output)
-    print(output)
+        np.save(args.result+'/'+'test_inputCopy.npy', inputCopy)
+        np.save(args.result+'/'+'test_output.npy', output)
 
 
 if __name__ == '__main__':
