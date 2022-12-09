@@ -28,6 +28,8 @@ The training procedure of the neural network is designed as follow :
 The critic is trained first a certain amount of time using one single generated output from the generator and the associated target halo field. 
 Then, the generator is trained a certain amount of time too on different dark matter density fields. As the critic is supposed to indicate to the generator how its generated halo fields are "different" from the target one, the critic is in general trained 2-3 times more than the generator. For more information, refer to the parameter files in parameters/. 
 This training procedure is then repeated a large number of time. 
+# Gradient Penalty
+Main goal of the gradient penalty is to reduce loss through weight clipping. Also enforces a Lipschitz-1 constraint on the critic, which is needed to find the Wasserstein distance. Function takes expected results of the neural network and determines which ones are real. Gradient penalty is optimised through loss on the critic.
 
 ## Parameters documentation
 A description of each parameter used in the parameter file (json file) is provided in parameters/parametersDocu.txt
